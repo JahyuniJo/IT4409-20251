@@ -1,0 +1,48 @@
+version: '3.9'
+
+services:
+  backend:
+    build: ./backend
+    container_name: social_backend
+    restart: always
+    ports:
+      - "5000:5000"
+    environment:
+      NODE_ENV: production
+    volumes:
+      - ./backend:/app
+    networks:
+      - socialnet
+
+  frontend:
+    build: ./frontend
+    container_name: social_frontend
+    restart: always
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+    networks:
+      - socialnet
+
+  db:
+    image: postgres:15
+    container_name: social_db
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 002016
+      POSTGRES_DB: social_media
+    ports:
+      - "5432:5432"
+    volumes:
+      - socialdata:/var/lib/postgresql/data
+    networks:
+      - socialnet
+
+networks:
+  socialnet:
+
+volumes:
+  socialdata:
+
