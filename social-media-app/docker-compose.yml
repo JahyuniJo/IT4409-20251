@@ -9,8 +9,16 @@ services:
       - "5000:5000"
     environment:
       NODE_ENV: production
+      PG_HOST: db 
+      PG_PORT: 5432
+      PG_USER: postgres
+      PG_PASSWORD: ${PG_PASSWORD}
+      PG_NAME: social_media
     volumes:
       - ./backend:/app
+      - /app/node_modules
+    depends_on:
+      - db
     networks:
       - socialnet
 
@@ -31,7 +39,7 @@ services:
     restart: always
     environment:
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: 002016
+      POSTGRES_PASSWORD: ${PG_PASSWORD}
       POSTGRES_DB: social_media
     ports:
       - "5432:5432"
