@@ -17,12 +17,12 @@ import { setLikeNotification } from './redux/rtnSlice'
 const browserRouter = createBrowserRouter([
   {
     path: "/",
-    element: <MainLayout />
-    // children: [
-    //   {
-    //     path: '/',
-    //     element: <Home />
-    //   }
+    element: <MainLayout />,
+    children: [
+      {
+        path: '/',
+        element: <Home />
+      }
       // {
       //   path: '/profile/:id',
       //   element: <Profile />
@@ -35,7 +35,7 @@ const browserRouter = createBrowserRouter([
       //   path: '/chat',
       //   element: <ChatPage />
       // },
-    // ]
+    ]
   },
   {
     path: '/login',
