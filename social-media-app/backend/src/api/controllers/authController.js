@@ -21,9 +21,9 @@ exports.register = async (req, res) => {
     const hash = await bcrypt.hash(password, 12);
 
     const user = await db.query(
-      `INSERT INTO users (username, email, password_hash)
+      `INSERT INTO users (username, email, password)
        VALUES ($1, $2, $3)
-       RETURNING id, username, email, avatar_url, created_at`,
+       RETURNING iduser, username, email, avatar, created_at`,
       [username, email, hash]
     );
 
@@ -47,7 +47,7 @@ exports.login = async (req, res) => {
 
     if (!user) return res.status(400).json({ message: "Sai email hoặc mật khẩu!" });
 
-    const ok = await bcrypt.compare(password, user.password_hash);
+    const ok = await bcrypt.compare(password, user.password);
     if (!ok) return res.status(400).json({ message: "Sai email hoặc mật khẩu!" });
 
     const accessToken = generateAccessToken(user.id);
@@ -68,10 +68,10 @@ exports.login = async (req, res) => {
       accessToken,
       refreshToken,
       user: {
-        id: user.id,
+        iduser: user.iduser,
         username: user.username,
         email: user.email,
-        avatar_url: user.avatar_url
+        avatar: user.avatar
       }
     });
 
