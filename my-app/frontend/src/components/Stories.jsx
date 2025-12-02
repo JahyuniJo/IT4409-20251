@@ -5,8 +5,7 @@ import { X, ChevronLeft, ChevronRight, Heart, Send, MoreHorizontal, Pause, Play 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 
-// ... Keep your MOCK_STORIES constant exactly as it was ...
-// For brevity, I am assuming MOCK_STORIES is available here.
+
 const MOCK_STORIES = [
   {
     userId: '1',
@@ -26,11 +25,9 @@ const MOCK_STORIES = [
   { userId: '10', username: 'art_daily', avatar: 'https://i.pravatar.cc/150?img=68', stories: [{ id: 's10', type: 'image', url: 'https://images.unsplash.com/photo-1513364776144-60967b0f800f', timestamp: new Date(), seen: false }] }
 ];
 
-// ... Keep StoryViewer Component exactly as it was ...
+
 const StoryViewer = ({ isOpen, onClose, initialStoryIndex, stories }) => {
-  // (Paste your existing StoryViewer code here, omitting for brevity as it hasn't changed)
   const [currentUserIndex, setCurrentUserIndex] = useState(initialStoryIndex);
-  // ... (rest of logic)
   if (!isOpen) return null;
   return <div className="fixed inset-0 z-50 bg-black flex items-center justify-center text-white">Placeholder for StoryViewer</div>;
 };
@@ -42,7 +39,7 @@ const StoryAvatar = ({ user, onClick }) => {
   return (
     <div 
       onClick={onClick}
-      // Fixed width per item is critical for smooth sliding math
+      
       className="flex flex-col items-center gap-2 flex-shrink-0 cursor-pointer group"
       style={{ width: '80px' }} // 66px avatar + margins/padding roughly
     >
