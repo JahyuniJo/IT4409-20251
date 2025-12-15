@@ -5,7 +5,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 
-// Mock data for demonstration
+// Mock data (kept the same)
 const MOCK_POSTS = [
   {
     _id: '1',
@@ -102,28 +102,32 @@ const PostCard = ({ post }) => {
   };
 
   return (
-    <div className="bg-white border border-gray-200 rounded-lg mb-6 overflow-hidden">
+    // FIX 1: Applied specific hex bg-[#0F1115] and white/10 border
+    <div className="bg-[#0F1115] border-b border-white/10 mb-6 pb-4">
+      
       {/* Post Header */}
       <div className="flex items-center justify-between p-3">
         <div className="flex items-center gap-3">
-          <Avatar className="w-10 h-10 cursor-pointer">
+          <Avatar className="w-8 h-8 cursor-pointer border border-white/10">
             <AvatarImage src={post.author.profilePicture} alt={post.author.username} />
             <AvatarFallback>{post.author.username[0].toUpperCase()}</AvatarFallback>
           </Avatar>
-          <div>
-            <p className="font-semibold text-sm cursor-pointer hover:text-gray-600">
+          <div className="flex items-center gap-2">
+            <p className="font-semibold text-sm cursor-pointer text-white hover:text-gray-300">
               {post.author.username}
             </p>
+            <span className="text-gray-500">•</span>
             <p className="text-xs text-gray-500">{formatTimeAgo(post.createdAt)}</p>
           </div>
         </div>
-        <Button variant="ghost" size="icon" className="hover:bg-gray-100">
+        <Button variant="ghost" size="icon" className="hover:bg-white/5 text-white">
           <MoreHorizontal className="w-5 h-5" />
         </Button>
       </div>
 
       {/* Post Image */}
-      <div className="relative w-full aspect-square bg-gray-100">
+      {/* FIX 2: Added border-white/10 for subtle separation */}
+      <div className="relative w-full aspect-square bg-[#0F1115] rounded-sm overflow-hidden border border-white/10">
         <img 
           src={post.image} 
           alt="Post" 
@@ -138,36 +142,36 @@ const PostCard = ({ post }) => {
           <div className="flex items-center gap-4">
             <button 
               onClick={handleLike}
-              className="hover:text-gray-500 transition-colors"
+              className="hover:text-gray-400 transition-colors text-white"
             >
               <Heart 
                 className={`w-6 h-6 ${liked ? 'fill-red-500 text-red-500' : ''}`}
               />
             </button>
-            <button className="hover:text-gray-500 transition-colors">
-              <MessageCircle className="w-6 h-6" />
+            <button className="hover:text-gray-400 transition-colors text-white">
+              <MessageCircle className="w-6 h-6 transform -rotate-90" />
             </button>
-            <button className="hover:text-gray-500 transition-colors">
+            <button className="hover:text-gray-400 transition-colors text-white">
               <Send className="w-6 h-6" />
             </button>
           </div>
           <button 
             onClick={() => setSaved(!saved)}
-            className="hover:text-gray-500 transition-colors"
+            className="hover:text-gray-400 transition-colors text-white"
           >
-            <Bookmark className={`w-6 h-6 ${saved ? 'fill-black' : ''}`} />
+            <Bookmark className={`w-6 h-6 ${saved ? 'fill-white text-white' : ''}`} />
           </button>
         </div>
 
         {/* Likes Count */}
-        <p className="font-semibold text-sm mb-2">
+        <p className="font-semibold text-sm mb-2 text-white">
           {likesCount.toLocaleString()} likes
         </p>
 
         {/* Caption */}
         <div className="text-sm mb-2">
-          <span className="font-semibold mr-2">{post.author.username}</span>
-          <span className="text-gray-800">{post.caption}</span>
+          <span className="font-semibold mr-2 text-white">{post.author.username}</span>
+          <span className="text-white">{post.caption}</span>
         </div>
 
         {/* Comments */}
@@ -176,7 +180,7 @@ const PostCard = ({ post }) => {
             {!showAllComments && post.comments.length > 2 && (
               <button 
                 onClick={() => setShowAllComments(true)}
-                className="text-gray-500 mb-2 hover:text-gray-700"
+                className="text-gray-500 mb-2 hover:text-gray-400"
               >
                 View all {post.comments.length} comments
               </button>
@@ -185,13 +189,9 @@ const PostCard = ({ post }) => {
             <div className="space-y-1">
               {(showAllComments ? post.comments : post.comments.slice(0, 2)).map((comment) => (
                 <div key={comment._id} className="flex items-start gap-2">
-                  <Avatar className="w-6 h-6">
-                    <AvatarImage src={comment.author.profilePicture} />
-                    <AvatarFallback>{comment.author.username[0]}</AvatarFallback>
-                  </Avatar>
                   <div className="flex-1">
-                    <span className="font-semibold mr-2">{comment.author.username}</span>
-                    <span className="text-gray-800">{comment.text}</span>
+                    <span className="font-semibold mr-2 text-white">{comment.author.username}</span>
+                    <span className="text-white">{comment.text}</span>
                   </div>
                 </div>
               ))}
@@ -199,28 +199,29 @@ const PostCard = ({ post }) => {
           </div>
         )}
 
-        {/* Add Comment */}
-        <div className="flex items-center gap-2 mt-3 pt-3 border-t">
-          <button className="hover:text-gray-500">
-            <Smile className="w-6 h-6" />
-          </button>
+        {/* Add Comment Input */}
+        <div className="flex items-center gap-2 mt-3">
           <Input
             type="text"
             placeholder="Add a comment..."
             value={comment}
             onChange={(e) => setComment(e.target.value)}
             onKeyPress={handleKeyPress}
-            className="border-none focus-visible:ring-0 px-0"
+            // FIX 3: bg-transparent allows it to inherit the #0F1115 background
+            className="border-none focus-visible:ring-0 px-0 bg-transparent text-white placeholder:text-gray-500"
           />
           {comment.trim() && (
             <Button 
               onClick={handleCommentPost}
               variant="ghost" 
-              className="text-blue-500 font-semibold hover:text-blue-600 hover:bg-transparent"
+              className="text-blue-500 font-semibold hover:text-blue-400 hover:bg-transparent p-0 h-auto"
             >
               Post
             </Button>
           )}
+          <button className="text-gray-400 hover:text-white">
+            <Smile className="w-4 h-4" />
+          </button>
         </div>
       </div>
     </div>
@@ -231,12 +232,13 @@ const Feed = () => {
   const [posts] = useState(MOCK_POSTS);
 
   return (
-    <div className="w-full">
-      {/* Stories - Full width of the feed area */}
+    // FIX 4: Applied the specific hex color to the main container
+    <div className="w-full bg-[#0F1115] min-h-screen">
+      {/* Stories */}
       <Stories />
 
-      {/* Posts Feed - Constrained width */}
-      <div className="max-w-[470px] mx-auto px-4">
+      {/* Posts Feed */}
+      <div className="max-w-[470px] mx-auto px-0 sm:px-4">
         {posts.length === 0 ? (
           <div className="text-center py-12">
             <p className="text-gray-500 text-lg">No posts yet</p>
@@ -248,8 +250,8 @@ const Feed = () => {
 
         {posts.length > 0 && (
           <div className="text-center py-8">
-            <Button variant="outline" className="w-full">
-              Load More Posts
+            <Button variant="ghost" className="text-gray-500 hover:text-white">
+              You're all caught up
             </Button>
           </div>
         )}
