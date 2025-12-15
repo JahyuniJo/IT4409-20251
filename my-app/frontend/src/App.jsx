@@ -1,10 +1,10 @@
 import { useEffect } from 'react'
-// import ChatPage from './components/ChatPage'
-// import EditProfile from './components/EditProfile'
+import ChatPage from './components/ChatPage'
+import EditProfile from './components/EditProfile'
 import Home from './components/Home'
 import Login from './components/Login'
 import MainLayout from './components/MainLayout'
-// import Profile from './components/Profile'
+import Profile from './components/Profile'
 import Signup from './components/Signup'
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 import { io } from "socket.io-client";
@@ -13,7 +13,6 @@ import { setSocket } from './redux/socketSlice'
 import { setOnlineUsers } from './redux/chatSlice'
 import { setLikeNotification } from './redux/rtnSlice'
 
-// 🚀 DEV MODE — NO ProtectedRoutes
 const browserRouter = createBrowserRouter([
   {
     path: "/",
@@ -22,19 +21,19 @@ const browserRouter = createBrowserRouter([
       {
         path: '/',
         element: <Home />
-      }
-      // {
-      //   path: '/profile/:id',
-      //   element: <Profile />
-      // },
-      // {
-      //   path: '/account/edit',
-      //   element: <EditProfile />
-      // },
-      // {
-      //   path: '/chat',
-      //   element: <ChatPage />
-      // },
+      },
+      {
+        path: '/profile/:id',
+        element: <Profile />
+      },
+      {
+        path: '/account/edit',
+        element: <EditProfile />
+      },
+      {
+        path: '/chat',
+        element: <ChatPage />
+      },
     ]
   },
   {
@@ -45,19 +44,7 @@ const browserRouter = createBrowserRouter([
     path: '/signup',
     element: <Signup />
   },
-
-  // optional test route (left unchanged)
-  {
-    path: '/test',
-    element: <MainLayout />,
-    children: [
-      {
-        path: 'home',
-        element: <Home />
-      }
-    ]
-  }
-]);
+])
 
 function App() {
   const { user } = useSelector(store => store.auth);
@@ -99,4 +86,4 @@ function App() {
   )
 }
 
-export default App;
+export default App
