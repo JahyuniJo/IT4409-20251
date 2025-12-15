@@ -4,16 +4,14 @@ import LeftSidebar from './LeftSidebar'
 
 const MainLayout = () => {
   return (
-    <div className='flex'>
+    <div className="flex min-h-screen">
+      {/* Sidebar */}
       <LeftSidebar />
-      
-      {/* FIX: Add margin-left (ml) to match your sidebar width.
-         If LeftSidebar is w-[16%], add ml-[16%].
-         If LeftSidebar is w-64 (256px), add ml-64.
-      */}
-      <div className='flex-1 ml-[16%]'> 
+
+      {/* Main content */}
+      <main className="flex-1">
         <Outlet />
-      </div>
+      </main>
     </div>
   )
 }
