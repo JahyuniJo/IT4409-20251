@@ -16,7 +16,7 @@ export default function Navbar() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // 🔧 Temporary fake user (replace later when backend is ready)
+  //  Temporary fake user (replace later when backend is ready)
   const user = {
     username: "demo_user",
     avatarUrl: "https://i.pravatar.cc/40",

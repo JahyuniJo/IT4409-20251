@@ -38,7 +38,7 @@ const MOCK_CONVERSATIONS = [
     username: 'mike_wilson', 
     name: 'Mike Wilson', 
     avatar: 'https://i.pravatar.cc/40?img=33',
-    lastMessage: 'See you tomorrow 👋',
+    lastMessage: 'See you tomorrow ',
     timestamp: '1d ago',
     unread: 0,
     online: false
@@ -192,7 +192,7 @@ const MessagesBubble = () => {
               </div>
               <div className="flex gap-2 justify-end">
                 <div className="bg-blue-500 text-white rounded-2xl rounded-tr-sm px-4 py-2 max-w-[70%]">
-                  <p className="text-sm">I'm great! Just working on some projects 😊</p>
+                  <p className="text-sm">I'm great! Just working on some projects </p>
                 </div>
               </div>
               <div className="flex gap-2">

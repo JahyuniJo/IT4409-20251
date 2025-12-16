@@ -1,5 +1,5 @@
 
-## 📁 Project Structure
+##  Project Structure
 
 ```
 my-app/
@@ -38,7 +38,7 @@ my-app/
 
 ---
 
-## 🧠 Overview
+##  Overview
 
 - **Frontend**: Built with React, located in `/client`
 - **Backend**: Built with Node.js and Express, located in `/server`
@@ -46,16 +46,16 @@ my-app/
 
 ---
 
-## ⚙️ Setup Instructions
+##  Setup Instructions
 
-### 1️⃣ Prerequisites
+###  Prerequisites
 Make sure you have installed:
 - [Docker & Docker Compose](https://docs.docker.com/get-docker/)
 - Node.js (for local testing, optional)
 
 ---
 
-### 2️⃣ Create an `.env` file in `/server`:
+###  Create an `.env` file in `/server`:
 ```bash
 PORT=5000
 MONGO_URI=mongodb://mongo:27017/mydatabase
@@ -65,7 +65,7 @@ MONGO_URI=mongodb://mongo:27017/mydatabase
 
 ---
 
-### 3️⃣ Run all services with Docker
+###  Run all services with Docker
 From the root of your project:
 ```bash
 docker-compose up --build
@@ -78,7 +78,7 @@ This will start:
 
 ---
 
-### 4️⃣ Test the Backend API
+###  Test the Backend API
 You can test your backend using **VSCode REST Client** with the file:
 ```
 server/test_api.http
@@ -99,7 +99,7 @@ Content-Type: application/json
 
 ---
 
-## 🔗 Connecting Frontend to Backend
+##  Connecting Frontend to Backend
 
 Your React frontend should send requests to:
 ```
@@ -135,7 +135,7 @@ docker exec -it <mongo_container_id> mongosh
 
 ---
 
-## 💾 Database Info
+##  Database Info
 
 - Default MongoDB container name: `mongo`
 - Default database name: `mydatabase`
@@ -150,7 +150,7 @@ db.users.find()
 
 ---
 
-## 🧰 Useful Development Tips
+##  Useful Development Tips
 
 - Use `.env` to store sensitive data like DB URIs and JWT secrets.
 - To test backend locally (without Docker), run:

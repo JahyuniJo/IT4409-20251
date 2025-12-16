@@ -15,13 +15,13 @@ const MOCK_POSTS = [
       profilePicture: 'https://i.pravatar.cc/150?img=12'
     },
     image: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=500&h=500&fit=crop',
-    caption: 'Beautiful mountain view! 🏔️ #nature #photography',
+    caption: 'Beautiful mountain view!  #nature #photography',
     likes: 1234,
     comments: [
       {
         _id: 'c1',
         author: { username: 'jane_smith', profilePicture: 'https://i.pravatar.cc/40?img=5' },
-        text: 'Stunning view! 😍',
+        text: 'Stunning view! ',
       },
       {
         _id: 'c2',
@@ -39,7 +39,7 @@ const MOCK_POSTS = [
       profilePicture: 'https://i.pravatar.cc/150?img=45'
     },
     image: 'https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=500&h=500&fit=crop',
-    caption: 'Sunset vibes ✨',
+    caption: 'Sunset vibes ',
     likes: 892,
     comments: [
       {
@@ -58,7 +58,7 @@ const MOCK_POSTS = [
       profilePicture: 'https://i.pravatar.cc/150?img=33'
     },
     image: 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=500&h=500&fit=crop',
-    caption: 'Homemade pasta! 🍝 Recipe coming soon',
+    caption: 'Homemade pasta!  Recipe coming soon',
     likes: 2456,
     comments: [],
     createdAt: '2024-12-07T08:00:00Z'

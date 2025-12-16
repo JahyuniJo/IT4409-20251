@@ -1,46 +1,80 @@
+# version: "3.8"
+
+# services:
+#   mongo:
+#     image: mongo:7.0
+#     container_name: mongodb
+#     restart: always
+#     ports:
+#       - "27017:27017"
+#     volumes:
+#       - mongo-data:/data/db
+
+#   backend:
+#     build: ./backend
+#     container_name: backend
+#     restart: always
+#     ports:
+#       - "5000:5000"
+#     env_file:
+#       - ./backend/.env
+#     depends_on:
+#       - mongo
+#     volumes:
+#       - ./backend:/app
+#     environment:
+#       - MONGO_URI=mongodb://mongo:27017/myapp
+
+#   frontend:
+#     build:
+#       context: ./frontend
+#       dockerfile: Dockerfile
+#     container_name: frontend
+#     restart: always
+#     ports:
+#       - "3000:80"
+#     depends_on:
+#       - backend
+#     volumes:
+#       - ./frontend:/app       
+#       - /app/node_modules   
+#     environment:
+#       - CHOKIDAR_USEPOLLING=true 
+#       - REACT_APP_API_URL=http://backend:5000
+
+# volumes:
+#   mongo-data:
+
 version: "3.8"
 
 services:
-  mongo:
-    image: mongo:7.0
-    container_name: mongodb
+  backend:
+    build: ./backend
+    container_name: backend
     restart: always
+    # Map Host Port 8000 -> Container Port 8000 (Matches your .env)
     ports:
-      - "27017:27017"
-    volumes:
-      - mongo-data:/data/db
-
-  server:
-    build: ./server
-    container_name: server
-    restart: always
-    ports:
-      - "5000:5000"
+      - "8000:8000"
+    # This loads your backend/.env variables into the container
     env_file:
-      - ./server/.env
-    depends_on:
-      - mongo
-    volumes:
-      - ./server:/app
-    environment:
-      - MONGO_URI=mongodb://mongo:27017/myapp
+      - ./backend/.env
+    # IMPORTANT: We removed the 'environment' section that was overriding your MONGO_URI
+    # We also removed 'depends_on: mongo' since you use Atlas.
 
-  client:
+  frontend:
     build:
-      context: ./client
-      dockerfile: Dockerfile
-    container_name: client
+      context: ./frontend
+      dockerfile: Dockerfile.dev
+    container_name: frontend
     restart: always
     ports:
-      - "3000:3000"
-    depends_on:
-      - server
+      - "3000:5173"
     volumes:
-      - ./client:/app       
-      - /app/node_modules   
-    environment:
-      - CHOKIDAR_USEPOLLING=true 
-      - REACT_APP_API_URL=http://server:5000
-
-volumes:
-  mongo-data:
+      - ./frontend:/app
+      - /app/node_modules
+    env_file:
+      - ./frontend/.env
+    depends_on:
+      - backend
+    # REMOVED volumes. The Nginx image contains the built files. 
+    # Mounting ./frontend:/app would hide the built files and break the site.

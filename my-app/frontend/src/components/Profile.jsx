@@ -49,7 +49,7 @@ const Profile = () => {
                 </span>
 
                 <Badge className='w-fit' variant='secondary'><AtSign /> <span className='pl-1'>{userProfile?.username}</span> </Badge>
-                <span>🤯Tiểu sử</span>
+                <span>Tiểu sử</span>
               </div>
 
             </div>
