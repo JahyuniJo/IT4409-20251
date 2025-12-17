@@ -22,7 +22,7 @@ app.use(urlencoded({ extended: true }));
 
 // CORS Configuration
 const corsOptions = {
-    origin: process.env.URL || 'http://localhost:5173',
+    origin: process.env.URL || 'http://localhost:3000',
     credentials: true,
     optionsSuccessStatus: 200
 };

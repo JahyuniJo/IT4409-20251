@@ -1,188 +1,165 @@
-import React, { useState } from 'react'
-import { Grid3X3, Bookmark } from 'lucide-react'
-import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar'
-import useGetUserProfile from '@/hooks/useGetUserProfile';
-import { Link, useParams } from 'react-router-dom';
-import { useSelector } from 'react-redux';
+import React, { useRef, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import { Button } from './ui/button';
-import { Badge } from './ui/badge';
-import { AtSign, Heart, MessageCircle } from 'lucide-react';
+import { Textarea } from './ui/textarea';
+import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from './ui/select';
+import axios from 'axios';
+import { Loader2, ArrowLeft, ImagePlus } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { toast } from 'sonner';
+import { setAuthUser } from '@/redux/authSlice';
 
-const Profile = () => {
-  const params = useParams();
-  const userId = params.id;
-  useGetUserProfile(userId);
-  const [activeTab, setActiveTab] = useState('posts');
+const API_URL = import.meta.env.VITE_API_URL;
 
-  const { userProfile, user } = useSelector(store => store.auth);
+const EditProfile = () => {
+  const imageRef = useRef();
+  const { user } = useSelector(store => store.auth);
+  const [loading, setLoading] = useState(false);
+  const [input, setInput] = useState({
+    profilePhoto: user?.profilePicture,
+    bio: user?.bio,
+    gender: user?.gender
+  });
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
 
-  const isLoggedInUserProfile = user?._id === userProfile?._id;
-  const isFollowing = false;
-
-  const handleTabChange = (tab) => {
-    setActiveTab(tab);
+  const fileChangeHandler = (e) => {
+    const file = e.target.files?.[0];
+    if (file) setInput({ ...input, profilePhoto: file });
   }
 
-  const displayedPost = activeTab === 'posts' ? userProfile?.posts : userProfile?.bookmarks;
+  const selectChangeHandler = (value) => {
+    setInput({ ...input, gender: value });
+  }
+
+  const editProfileHandler = async () => {
+    console.log(input);
+    const formData = new FormData();
+    formData.append("bio", input.bio);
+    formData.append("gender", input.gender);
+    if (input.profilePhoto) {
+      formData.append("profilePhoto", input.profilePhoto);
+    }
+    try {
+      setLoading(true);
+      const res = await axios.post(`${API_URL}/api/v1/user/profile/edit`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        },
+        withCredentials: true
+      });
+      if (res.data.success) {
+        const updatedUserData = {
+          ...user,
+          bio: res.data.user?.bio,
+          profilePicture: res.data.user?.profilePicture,
+          gender: res.data.user.gender
+        };
+        dispatch(setAuthUser(updatedUserData));
+        navigate(`/profile/${user?._id}`);
+        toast.success(res.data.message);
+      }
+
+    } catch (error) {
+      console.log(error);
+      toast.error(error.response.data.messasge);
+    } finally {
+      setLoading(false);
+    }
+  }
 
   return (
-    <div className='flex max-w-5xl justify-center mx-auto pl-10'>
-      <div className='flex flex-col gap-20 p-8'>
-        <div className='grid grid-cols-2'>
-          <section className='flex items-center justify-center'>
-            <Avatar className='h-40 w-40'>
-              <AvatarImage src={userProfile?.profilePicture} alt="profilephoto" />
-              <AvatarFallback>CN</AvatarFallback>
-            </Avatar>
-          </section>
-          <section>
-            <div className='flex flex-col gap-5'>
+    <div className="flex flex-col w-full min-h-screen bg-gray-50/50">
+      <div className="w-full max-w-5xl mx-auto px-4 py-6 flex items-center gap-4">
+        <Button
+          onClick={() => navigate(-1)}
+          className="h-10 w-10 rounded-full bg-white border border-gray-200 text-gray-700 shadow-sm hover:bg-gray-50 hover:text-black hover:shadow-md transition-all duration-200 flex items-center justify-center p-0"
+        >
+          <ArrowLeft className="h-5 w-5" />
+        </Button>
+      </div>
 
-              <div className='flex items-center gap-4'>
-                <p><span className='font-semibold'>{userProfile?.posts.length} </span>Bài viết</p>
-                <p><span className='font-semibold'>{userProfile?.followers.length} </span>Người theo dõi</p>
-                <p><span className='font-semibold'>{userProfile?.following.length} </span>Đang theo dõi</p>
+      <div className="flex-1 w-full max-w-xl mx-auto px-4 pb-10">
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-150 p-8">
+          <h1 className="text-xl font-bold text-center">Chỉnh sửa trang cá nhân</h1>
+          <div className="flex flex-col items-center mb-8">
+            <div className="relative group cursor-pointer" onClick={() => imageRef.current.click()}>
+              <Avatar className="h-32 w-32 border-4 border-gray-50 shadow-sm group-hover:opacity-90 transition-opacity">
+                <AvatarImage src={input.profilePhoto instanceof File ? URL.createObjectURL(input.profilePhoto) : user?.profilePicture} className="object-cover" />
+                <AvatarFallback className="text-2xl bg-gray-200">CN</AvatarFallback>
+              </Avatar>
+              <div className="absolute bottom-0 right-0 bg-blue-500 p-2 rounded-full text-white shadow-lg hover:bg-blue-600 transition-colors">
+                <ImagePlus className="h-4 w-4" />
               </div>
-              <div className='flex flex-col gap-1'>
-                <span className="text-xl font-bold tracking-tight">
-                  {userProfile?.bio || 'No Bio Yet'}
-                </span>
-
-                <Badge className='w-fit' variant='secondary'><AtSign /> <span className='pl-1'>{userProfile?.username}</span> </Badge>
-                <span>Tiểu sử</span>
-              </div>
-
-            </div>
-            <div className="mt-6 w-full">
-              {isLoggedInUserProfile ? (
-                /* ===== PROFILE CỦA MÌNH ===== */
-                <Link to="/account/edit" className="block w-full">
-                  <Button
-                    variant="secondary"
-                    className="
-          w-full h-11
-          rounded-lg
-          text-sm font-semibold
-          bg-gray-100 hover:bg-gray-200
-          transition-colors
-        "
-                  >
-                    Chỉnh sửa trang cá nhân
-                  </Button>
-                </Link>
-              ) : (
-                /* ===== PROFILE NGƯỜI KHÁC ===== */
-                <div className="grid grid-cols-2 gap-3">
-                  {isFollowing ? (
-                    <>
-                      <Button
-                        variant="secondary"
-                        className="
-              h-11 rounded-lg
-              font-semibold
-              bg-gray-100 hover:bg-gray-200
-              transition-colors
-            "
-                      >
-                        Unfollow
-                      </Button>
-
-                      <Button
-                        variant="secondary"
-                        className="
-              h-11 rounded-lg
-              font-semibold
-              bg-gray-100 hover:bg-gray-200
-              transition-colors
-            "
-                      >
-                        Message
-                      </Button>
-                    </>
-                  ) : (
-                    <>
-                      <Button
-                        className="
-              h-11 rounded-lg
-              bg-[#0095F6] hover:bg-[#1877F2]
-              text-white font-semibold
-              transition-colors
-            "
-                      >
-                        Follow
-                      </Button>
-
-                      <Button
-                        variant="secondary"
-                        className="
-              h-11 rounded-lg
-              font-semibold
-              bg-gray-100 hover:bg-gray-200
-              transition-colors
-            "
-                      >
-                        Message
-                      </Button>
-                    </>
-                  )}
-                </div>
-              )}
             </div>
 
-          </section>
-
-
-
-
-
-        </div>
-        <div className='border-t border-t-gray-200'>
-          <div className="grid grid-cols-2 border-t border-gray-200">
-            {/* POSTS */}
-            <button
-              onClick={() => handleTabChange('posts')}
-              className={`flex justify-center items-center py-4 border-t-2 ${activeTab === 'posts'
-                ? 'border-black text-black'
-                : 'border-transparent text-gray-400'
-                }`}
-            >
-              <Grid3X3 size={22} />
-            </button>
-
-            {/* SAVED */}
-            <button
-              onClick={() => handleTabChange('saved')}
-              className={`flex justify-center items-center py-4 border-t-2 ${activeTab === 'saved'
-                ? 'border-black text-black'
-                : 'border-transparent text-gray-400'
-                }`}
-            >
-              <Bookmark size={22} />
-            </button>
+            <div className="mt-4 text-center">
+              <h2 className="text-xl font-bold text-gray-900">{user?.username}</h2>
+              <Button
+                variant="link"
+                onClick={() => imageRef.current.click()}
+                className="text-[#0095F6] font-semibold text-sm hover:no-underline p-0 h-auto mt-1"
+              >
+                Thay đổi ảnh đại diện
+              </Button>
+            </div>
+            <input
+              ref={imageRef}
+              onChange={fileChangeHandler}
+              type="file"
+              className="hidden"
+            />
           </div>
 
-          <div className='grid grid-cols-3 gap-1'>
-            {
-              displayedPost?.map((post) => {
-                return (
-                  <div key={post?._id} className='relative group cursor-pointer'>
-                    <img src={post.image} alt='postimage' className='rounded-sm my-2 w-full aspect-square object-cover' />
-                    <div className='absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 transition-opacity duration-300'>
-                      <div className='flex items-center text-white space-x-4'>
-                        <button className='flex items-center gap-2 hover:text-gray-300'>
-                          <Heart />
-                          <span>{post?.likes.length}</span>
-                        </button>
-                        <button className='flex items-center gap-2 hover:text-gray-300'>
-                          <MessageCircle />
-                          <span>{post?.comments.length}</span>
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                )
-              })
-            }
+          <div className="space-y-6">
+            <div className="space-y-2">
+              <label className="text-sm font-semibold text-gray-700 ml-1">Tiểu sử</label>
+              <Textarea
+                value={input.bio}
+                onChange={(e) => setInput({ ...input, bio: e.target.value })}
+                placeholder="Tiểu sử"
+                className="min-h-[100px] resize-none bg-gray-50 border-gray-200 focus:bg-white focus:border-gray-400 focus:ring-0 rounded-xl transition-all p-4 text-base"
+              />
+              <p className="text-xs text-gray-400 text-right">
+                {input.bio?.length || 0} kí tự
+              </p>
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-sm font-semibold text-gray-700 ml-1">Giới tính</label>
+              <Select defaultValue={input.gender} onValueChange={selectChangeHandler}>
+                <SelectTrigger className="w-full h-12 bg-gray-50 border-gray-200 focus:ring-0 focus:border-gray-400 rounded-xl px-4">
+                  <SelectValue placeholder="Chọn giới tính" />
+                </SelectTrigger>
+                <SelectContent className="bg-white">
+                  <SelectGroup>
+                    <SelectItem value="male" className="cursor-pointer">Nam</SelectItem>
+                    <SelectItem value="female" className="cursor-pointer">Nữ</SelectItem>
+                    <SelectItem value="Other" className="cursor-pointer">Tùy chỉnh</SelectItem>
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="pt-4">
+              {loading ? (
+                <Button
+                  disabled
+                  className="w-full h-12 bg-[#0095F6]/70 text-white rounded-xl"
+                >
+                  <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                  Lưu thay đổi ...
+                </Button>
+              ) : (
+                <Button
+                  onClick={editProfileHandler}
+                  className="w-full h-12 bg-[#0095F6] hover:bg-[#1877F2] text-white font-semibold rounded-xl shadow-sm transition-all active:scale-[0.98]"
+                >
+                  Lưu thay đổi
+                </Button>
+              )}
+            </div>
           </div>
         </div>
       </div>
@@ -190,4 +167,4 @@ const Profile = () => {
   )
 }
 
-export default Profile
+export default EditProfile;

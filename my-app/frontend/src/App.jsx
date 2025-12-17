@@ -6,6 +6,7 @@
 // import MainLayout from './components/MainLayout'
 // import Profile from './components/Profile'
 // import Signup from './components/Signup'
+// import ProtectedRoutes from './components/ProtectedRoutes'
 // import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 // import { io } from "socket.io-client";
 // import { useDispatch, useSelector } from 'react-redux'
@@ -16,7 +17,11 @@
 // const browserRouter = createBrowserRouter([
 //   {
 //     path: "/",
-//     element: <MainLayout />,
+//     element: (
+//       <ProtectedRoutes>
+//         <MainLayout />
+//       </ProtectedRoutes>
+//     ),
 //     children: [
 //       {
 //         path: '/',
@@ -104,6 +109,8 @@ import { setSocket } from './redux/socketSlice'
 import { setOnlineUsers } from './redux/chatSlice'
 import { setLikeNotification } from './redux/rtnSlice'
 
+const SOCKET_URL = import.meta.env.VITE_SOCKET_URL || 'http://localhost:8000';
+
 const browserRouter = createBrowserRouter([
   {
     path: "/",
@@ -148,7 +155,7 @@ function App() {
 
   useEffect(() => {
     if (user) {
-      const socketio = io('http://localhost:8000', {
+      const socketio = io(SOCKET_URL, {
         query: {
           userId: user?._id
         },

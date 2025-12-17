@@ -1,111 +1,128 @@
-import React from "react";
+import React, { useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
+import { useSelector } from "react-redux";
 import {
   Home,
   Search,
   Compass,
-  Film,
   Send,
   Heart,
+  PlusSquare,
   Settings,
   MoreHorizontal,
 } from "lucide-react";
+import CreatePost from "./CreatePost";
 import "../App.css";
 
-export default function Navbar() {
+export default function LeftSidebar() {
   const navigate = useNavigate();
   const location = useLocation();
-
-  //  Temporary fake user (replace later when backend is ready)
-  const user = {
-    username: "demo_user",
-    avatarUrl: "https://i.pravatar.cc/40",
-  };
+  const { user } = useSelector(store => store.auth);
+  const { likeNotification } = useSelector(store => store.realTimeNotification);
+  const [open, setOpen] = useState(false);
 
   const isActive = (path) => location.pathname === path;
 
+  const handleComingSoon = (feature) => {
+    alert(`${feature} - Coming Soon!`);
+  };
+
+  const unreadNotifications = likeNotification.length;
+
   return (
-    <aside className="sidebar">
-      
-      <div className="sidebar-logo">
-        <img
-          src="/instagram-logo.svg"
-          alt="Instagram Logo"
-          className="instagram-logo"
-        />
-      </div>
-
-      
-      <nav className="sidebar-menu">
-        <Link
-          to="/"
-          className={`sidebar-item ${isActive("/") ? "active" : ""}`}
-        >
-          <Home size={24} />
-          <span>Trang chủ</span>
-        </Link>
-
-        <Link
-          to="/search"
-          className={`sidebar-item ${isActive("/search") ? "active" : ""}`}
-        >
-          <Search size={24} />
-          <span>Tìm kiếm</span>
-        </Link>
-
-        <Link
-          to="/explore"
-          className={`sidebar-item ${isActive("/explore") ? "active" : ""}`}
-        >
-          <Compass size={24} />
-          <span>Khám phá</span>
-        </Link>
-
-        <Link
-          to="/chat"
-          className={`sidebar-item ${isActive("/messages") ? "active" : ""}`}
-        >
-          <Send size={24} />
-          <span>Tin nhắn</span>
-        </Link>
-
-        <Link
-          to="/notifications"
-          className={`sidebar-item ${
-            isActive("/notifications") ? "active" : ""
-          }`}
-        >
-          <Heart size={24} />
-          <span>Thông báo</span>
-        </Link>
-
-        <Link
-          to={`/profile/${user.username}`}
-          className={`sidebar-item ${
-            location.pathname.startsWith("/profile") ? "active" : ""
-          }`}
-        >
+    <>
+      <aside className="sidebar">
+        <div className="sidebar-logo">
           <img
-            src={user.avatarUrl}
-            alt="avatar"
-            className="sidebar-avatar"
+            src="/instagram-logo.svg"
+            alt="Instagram Logo"
+            className="instagram-logo"
           />
-          <span>Trang cá nhân</span>
-        </Link>
+        </div>
 
-        <Link
-          to="/settings"
-          className={`sidebar-item ${isActive("/settings") ? "active" : ""}`}
-        >
-          <Settings size={24} />
-          <span>Cài đặt</span>
-        </Link>
+        <nav className="sidebar-menu">
+          <Link
+            to="/"
+            className={`sidebar-item ${isActive("/") ? "active" : ""}`}
+          >
+            <Home size={24} />
+            <span>Trang chủ</span>
+          </Link>
 
-        <button className="sidebar-item" onClick={() => alert("Tính năng sắp ra mắt!")}>
-          <MoreHorizontal size={24} />
-          <span>Xem thêm</span>
-        </button>
-      </nav>
-    </aside>
+          <button
+            onClick={() => handleComingSoon("Tìm kiếm")}
+            className="sidebar-item"
+          >
+            <Search size={24} />
+            <span>Tìm kiếm</span>
+          </button>
+
+          <button
+            onClick={() => handleComingSoon("Khám phá")}
+            className="sidebar-item"
+          >
+            <Compass size={24} />
+            <span>Khám phá</span>
+          </button>
+
+          <Link
+            to="/chat"
+            className={`sidebar-item ${isActive("/chat") ? "active" : ""}`}
+          >
+            <Send size={24} />
+            <span>Tin nhắn</span>
+          </Link>
+
+          <button
+            onClick={() => handleComingSoon("Thông báo")}
+            className="sidebar-item relative"
+          >
+            <div className="relative">
+              <Heart size={24} />
+              {unreadNotifications > 0 && (
+                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center font-semibold">
+                  {unreadNotifications}
+                </span>
+              )}
+            </div>
+            <span>Thông báo</span>
+          </button>
+
+          <button
+            onClick={() => setOpen(true)}
+            className="sidebar-item"
+          >
+            <PlusSquare size={24} />
+            <span>Tạo</span>
+          </button>
+
+          <Link
+            to={`/profile/${user?._id}`}
+            className={`sidebar-item ${
+              location.pathname.startsWith("/profile") ? "active" : ""
+            }`}
+          >
+            <img
+              src={user?.profilePicture || "https://i.pravatar.cc/40"}
+              alt="avatar"
+              className="sidebar-avatar"
+            />
+            <span>Trang cá nhân</span>
+          </Link>
+        </nav>
+
+        <div className="mt-auto">
+          <button
+            onClick={() => handleComingSoon("Xem thêm")}
+            className="sidebar-item"
+          >
+            <MoreHorizontal size={24} />
+            <span>Xem thêm</span>
+          </button>
+        </div>
+      </aside>
+
+      <CreatePost open={open} setOpen={setOpen} />
+    </>
   );
 }

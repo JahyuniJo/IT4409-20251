@@ -1,5 +1,5 @@
 import React, { useRef, useState } from 'react'
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from './ui/dialog'
+import { Dialog, DialogContent } from './ui/dialog'
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import { Textarea } from './ui/textarea';
 import { Button } from './ui/button';
@@ -9,6 +9,8 @@ import { toast } from 'sonner';
 import axios from 'axios';
 import { useDispatch, useSelector } from 'react-redux';
 import { setPosts } from '@/redux/postSlice';
+
+const API_URL = import.meta.env.VITE_API_URL;
 
 const CreatePost = ({ open, setOpen }) => {
   const imageRef = useRef();
@@ -35,7 +37,7 @@ const CreatePost = ({ open, setOpen }) => {
     if (imagePreview) formData.append("image", file);
     try {
       setLoading(true);
-      const res = await axios.post('https://instaclone-g9h5.onrender.com/api/v1/post/addpost', formData, {
+      const res = await axios.post(`${API_URL}/api/v1/post/addpost`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data'
         },
@@ -45,7 +47,6 @@ const CreatePost = ({ open, setOpen }) => {
         dispatch(setPosts([res.data.post, ...posts]));
         toast.success(res.data.message);
         setOpen(false);
-        // Reset state after success (optional but good for UX)
         setCaption("");
         setImagePreview("");
         setFile("");
@@ -57,7 +58,6 @@ const CreatePost = ({ open, setOpen }) => {
     }
   }
 
-  // Hàm để reset ảnh nếu muốn chọn lại (bổ trợ UI)
   const clearImageHandler = () => {
     setImagePreview("");
     setFile("");
@@ -67,19 +67,17 @@ const CreatePost = ({ open, setOpen }) => {
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent onInteractOutside={() => setOpen(false)} className="sm:max-w-[500px] p-0 gap-0 overflow-hidden bg-white rounded-xl">
         
-        {/* Header Section */}
         <div className="flex items-center justify-between border-b px-4 py-3 bg-white z-10">
           {imagePreview ? (
             <Button variant="ghost" size="icon" onClick={clearImageHandler} className="h-8 w-8 -ml-2 text-gray-600">
               <ArrowLeft className="h-5 w-5" />
             </Button>
           ) : (
-            <div className="w-8"></div> // Spacer to center title
+            <div className="w-8"></div>
           )}
           
           <h2 className="text-base font-semibold text-gray-900">Tạo bài viết mới</h2>
 
-          {/* Nút Post nằm ở góc phải Header - chỉ hiện khi có ảnh */}
           {imagePreview ? (
             loading ? (
               <div className="flex items-center text-blue-500 text-sm font-semibold">
@@ -95,14 +93,12 @@ const CreatePost = ({ open, setOpen }) => {
               </Button>
             )
           ) : (
-            <div className="w-8"></div> // Spacer
+            <div className="w-8"></div>
           )}
         </div>
 
-        {/* Content Section */}
         <div className="flex flex-col">
           {!imagePreview ? (
-            // TRƯỜNG HỢP 1: CHƯA CÓ ẢNH (Giao diện upload)
             <div className="flex flex-col items-center justify-center h-[400px] gap-4 p-8">
               <div className="relative">
                 <div className="absolute inset-0 bg-gray-100 rounded-full blur-xl opacity-50"></div>
@@ -120,9 +116,7 @@ const CreatePost = ({ open, setOpen }) => {
               </Button>
             </div>
           ) : (
-            // TRƯỜNG HỢP 2: ĐÃ CÓ ẢNH (Giao diện viết caption)
             <div className="flex flex-col max-h-[70vh] overflow-y-auto">
-              {/* Preview Ảnh */}
               <div className="w-full bg-gray-100 flex items-center justify-center min-h-[300px]">
                  <img 
                     src={imagePreview} 
@@ -131,7 +125,6 @@ const CreatePost = ({ open, setOpen }) => {
                  />
               </div>
 
-              {/* Phần nhập Caption */}
               <div className="p-4 space-y-3">
                 <div className='flex gap-3 items-center'>
                   <Avatar className="h-8 w-8">
@@ -149,7 +142,6 @@ const CreatePost = ({ open, setOpen }) => {
                 />
               </div>
               
-              {/* Nút thay đổi ảnh (phụ) */}
               <div className="px-4 pb-4 border-t pt-3 mt-auto">
                 <input ref={imageRef} type='file' accept="image/*" className='hidden' onChange={fileChangeHandler} />
                 <Button 
