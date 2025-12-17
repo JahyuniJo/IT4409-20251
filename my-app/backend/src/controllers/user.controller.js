@@ -208,9 +208,26 @@ export const editProfile = async (req, res) => {
 
 export const getSuggestedUsers = async (req, res) => {
     try {
-        const suggestedUsers = await User.find({ _id: { $ne: req.id } })
-            .select("-password")
-            .limit(10);
+        // 1. Fetch the current user to get their 'following' list
+        // We select only the 'following' field for performance
+        const currentUser = await User.findById(req.id).select('following');
+
+        // Safety check if user doesn't exist
+        if (!currentUser) {
+            return res.status(404).json({ 
+                message: "User not found", 
+                success: false 
+            });
+        }
+
+        // 2. Find users who are NOT the current user AND NOT in the following list
+        const suggestedUsers = await User.find({ 
+            _id: { 
+                $nin: [...currentUser.following, req.id] 
+            } 
+        })
+        .select("-password")
+        .limit(10);
         
         if (!suggestedUsers || suggestedUsers.length === 0) {
             return res.status(200).json({
