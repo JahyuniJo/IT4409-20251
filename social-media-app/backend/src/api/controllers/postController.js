@@ -2,8 +2,8 @@ import sharp from "sharp";
 // import cloudinary from "../utils/cloudinary.js";
 import { Post } from "../model/postModel.js";
 import { User } from "../model/userModel.js";
-// import { Comment } from "../models/comment.model.js";
-// import { getReceiverSocketId, io } from "../socket/socket.js";
+import { Comment } from "../model/commentModel.js";
+import { getReceiverSocketId, io } from "../../socket/socket.js";
 
 export const addNewPost = async (req, res) => {
     try {
