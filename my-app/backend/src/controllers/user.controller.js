@@ -497,7 +497,7 @@ export const getProfile = async (req, res) => {
 
 export const editProfile = async (req, res) => {
     try {
-        const userId = req.id;
+        const userId = req.userId;
         const { bio, gender } = req.body;
         const profilePicture = req.file;
         let cloudResponse;
