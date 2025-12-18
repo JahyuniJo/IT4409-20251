@@ -222,3 +222,42 @@ main {
     margin-left: 70px;
   }
 }
+
+
+
+.more-menu {
+  position: absolute;
+  bottom: 60px;
+  left: 10px;
+  width: 260px;
+  background: #262626;
+  border-radius: 16px;
+  padding: 8px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+  z-index: 50;
+}
+
+.menu-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  color: white;
+  font-size: 14px;
+  transition: background 0.2s;
+}
+
+.menu-item:hover {
+  background: #363636;
+}
+
+.menu-item.danger {
+  color: #ed4956;
+}
+
+.menu-divider {
+  height: 1px;
+  background: #3a3a3a;
+  margin: 8px 0;
+}
