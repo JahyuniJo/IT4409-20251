@@ -576,6 +576,27 @@ export const getSuggestedUsers = async (req, res) => {
     }
 };
 
+export const getSearchedUsers = async (req, res) => {
+    try {
+        const query = req.query.q;
+
+        const searchedUsers = await User.find({
+            username: { $regex: query, $options: 'i' }
+        }).select("-password");
+
+        return res.status(200).json({
+            success: true,
+            users: searchedUsers
+        });
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({
+            message: "Internal server error",
+            success: false
+        });
+    }
+};
+
 export const followOrUnfollow = async (req, res) => {
     try {
         const followKrneWala = req.id;

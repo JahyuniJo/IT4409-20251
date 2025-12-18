@@ -4,6 +4,7 @@ import {
     followOrUnfollow, 
     getProfile, 
     getSuggestedUsers, 
+    getSearchedUsers,
     login, 
     logout, 
     register 
@@ -20,5 +21,5 @@ router.route('/:id/profile').get(isAuthenticated, getProfile);
 router.route('/profile/edit').put(isAuthenticated, upload.single('profilePhoto'), editProfile);
 router.route('/suggested').get(isAuthenticated, getSuggestedUsers);
 router.route('/followorunfollow/:id').post(isAuthenticated, followOrUnfollow);
-
+router.route('/search?q=:query').get(isAuthenticated, getSearchedUsers);
 export default router;
