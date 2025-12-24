@@ -417,6 +417,7 @@ export const login = async (req, res) => {
             gender: user.gender,
             followers: user.followers,
             following: user.following,
+            bookmarks: user.bookmarks,
             posts: populatedPosts.filter(post => post !== null)
         }
         
@@ -599,8 +600,8 @@ export const getSearchedUsers = async (req, res) => {
 
 export const followOrUnfollow = async (req, res) => {
     try {
-        const followKrneWala = req.id;
-        const jiskoFollowKrunga = req.params.id;
+        const followKrneWala = req.userId;
+        const jiskoFollowKrunga = req.params.id; //
         
         if (followKrneWala === jiskoFollowKrunga) {
             return res.status(400).json({

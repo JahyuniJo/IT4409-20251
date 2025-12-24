@@ -10,7 +10,7 @@ export const addNewPost = async (req, res) => {
     try {
         const { caption } = req.body;
         const image = req.file;
-        const authorId = req.id;
+        const authorId = req.userId;
 
         if (!image) {
             return res.status(400).json({ 
@@ -87,7 +87,7 @@ export const getAllPost = async (req, res) => {
 
 export const getUserPost = async (req, res) => {
     try {
-        const authorId = req.id;
+        const authorId = req.userId;
         
         const posts = await Post.find({ author: authorId })
             .sort({ createdAt: -1 })
@@ -119,7 +119,7 @@ export const getUserPost = async (req, res) => {
 
 export const likePost = async (req, res) => {
     try {
-        const likeKrneWalaUserKiId = req.id;
+        const likeKrneWalaUserKiId = req.userId;
         const postId = req.params.id;
         
         const post = await Post.findById(postId);
@@ -169,7 +169,7 @@ export const likePost = async (req, res) => {
 
 export const dislikePost = async (req, res) => {
     try {
-        const likeKrneWalaUserKiId = req.id;
+        const likeKrneWalaUserKiId = req.userId;
         const postId = req.params.id;
         
         const post = await Post.findById(postId);
@@ -220,7 +220,7 @@ export const dislikePost = async (req, res) => {
 export const addComment = async (req, res) => {
     try {
         const postId = req.params.id;
-        const commentKrneWalaUserKiId = req.id;
+        const commentKrneWalaUserKiId = req.userId;
         const { text } = req.body;
 
         const post = await Post.findById(postId);
@@ -300,7 +300,7 @@ export const getCommentsOfPost = async (req, res) => {
 export const deletePost = async (req, res) => {
     try {
         const postId = req.params.id;
-        const authorId = req.id;
+        const authorId = req.userId;
 
         const post = await Post.findById(postId);
         if (!post) {
@@ -346,37 +346,41 @@ export const deletePost = async (req, res) => {
 export const bookmarkPost = async (req, res) => {
     try {
         const postId = req.params.id;
-        const authorId = req.id;
-        
+        const userId = req.userId;
+
         const post = await Post.findById(postId);
         if (!post) {
             return res.status(404).json({
-                message: 'Post not found', 
+                message: 'Post not found',
                 success: false
             });
         }
-        
-        const user = await User.findById(authorId);
-        
-        if (user.bookmarks.includes(post._id)) {
-            // Already bookmarked -> remove from bookmark
-            await user.updateOne({ $pull: { bookmarks: post._id } });
+
+        const user = await User.findById(userId);
+
+        const isBookmarked = user.bookmarks.some(
+            id => id.toString() === postId
+        );
+
+        if (isBookmarked) {
+            user.bookmarks.pull(postId);
             await user.save();
+
             return res.status(200).json({
-                type: 'unsaved', 
-                message: 'Post removed from bookmark', 
-                success: true
-            });
-        } else {
-            // Bookmark post
-            await user.updateOne({ $addToSet: { bookmarks: post._id } });
-            await user.save();
-            return res.status(200).json({
-                type: 'saved', 
-                message: 'Post bookmarked', 
-                success: true
+                success: true,
+                message: 'Unsaved',
+                bookmarks: user.bookmarks
             });
         }
+
+        user.bookmarks.push(postId);
+        await user.save();
+
+        return res.status(200).json({
+            success: true,
+            message: 'Saved',
+            bookmarks: user.bookmarks
+        });
 
     } catch (error) {
         console.log(error);
@@ -385,4 +389,4 @@ export const bookmarkPost = async (req, res) => {
             success: false
         });
     }
-}
+};
