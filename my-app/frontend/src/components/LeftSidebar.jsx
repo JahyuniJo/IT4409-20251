@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { setAuthUser } from '@/redux/authSlice';
 import axios from 'axios';
 import { toast } from 'sonner';
+import SwitchAccountModal from "./SwitchAccountModal";
 import {
   Home,
   Search,
@@ -47,43 +48,44 @@ export default function LeftSidebar() {
   const { likeNotification } = useSelector(store => store.realTimeNotification);
   const [open, setOpen] = useState(false);
   const [showMore, setShowMore] = useState(false);
+  const [showSwitchAccount, setShowSwitchAccount] = useState(false);
 
   const isActive = (path) => location.pathname === path;
-// Hàm đăng xuất
+  // Hàm đăng xuất
   const dispatch = useDispatch();
   const handleLogout = async () => {
-      try {
-        const res = await axios.get(`${API_URL}/api/v1/user/logout`, { withCredentials: true });
-        if (res.data.success) {
-          dispatch(setAuthUser(null));
-          navigate('/login');
-          toast.success(res.data.message);
-        }
-      } catch (error) {
-        console.log(error);
-        toast.error(error.response?.data?.message || 'Logout failed');
+    try {
+      const res = await axios.get(`${API_URL}/api/v1/user/logout`, { withCredentials: true });
+      if (res.data.success) {
+        dispatch(setAuthUser(null));
+        navigate('/login');
+        toast.success(res.data.message);
       }
-    };
+    } catch (error) {
+      console.log(error);
+      toast.error(error.response?.data?.message || 'Logout failed');
+    }
+  };
 
   const unreadNotifications = likeNotification.length;
 
 
-// Thêm logic đóng menu khi nhấp ra ngoài
+  // Thêm logic đóng menu khi nhấp ra ngoài
   useEffect(() => {
-  const handleClickOutside = () => {
-    setShowMore(false);
-  };
-  window.addEventListener("click", handleClickOutside);
-  return () => window.removeEventListener("click", handleClickOutside);
-}, []);
-// Chỉ thêm sự kiện khi menu được mở tránh addEventListener nhiều lần
+    const handleClickOutside = () => {
+      setShowMore(false);
+    };
+    window.addEventListener("click", handleClickOutside);
+    return () => window.removeEventListener("click", handleClickOutside);
+  }, []);
+  // Chỉ thêm sự kiện khi menu được mở tránh addEventListener nhiều lần
   useEffect(() => {
-  if (!showMore) return;
+    if (!showMore) return;
 
-  const handler = () => setShowMore(false);
-  window.addEventListener("click", handler);
-  return () => window.removeEventListener("click", handler);
-}, [showMore]);
+    const handler = () => setShowMore(false);
+    window.addEventListener("click", handler);
+    return () => window.removeEventListener("click", handler);
+  }, [showMore]);
 
   return (
     <>
@@ -188,7 +190,14 @@ export default function LeftSidebar() {
 
               <div className="menu-divider" />
 
-              <MenuItem icon={<Repeat size={18} />} text="Chuyển tài khoản" />
+              <MenuItem
+                icon={<Repeat size={18} />}
+                text="Chuyển tài khoản"
+                onClick={() => {
+                  setShowMore(false);
+                  setShowSwitchAccount(true);
+                }}
+              />
               <MenuItem
                 icon={<LogOut size={18} />}
                 text="Đăng xuất"
@@ -200,7 +209,9 @@ export default function LeftSidebar() {
         </div>
 
       </aside>
-
+      {showSwitchAccount && (
+        <SwitchAccountModal onClose={() => setShowSwitchAccount(false)} />
+      )}
       <CreatePost open={open} setOpen={setOpen} />
     </>
   );

@@ -17,6 +17,7 @@ const Signup = () => {
     });
     const [loading, setLoading] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const { user } = useSelector(store => store.auth);
     const navigate = useNavigate();
 
@@ -98,7 +99,9 @@ const Signup = () => {
                                 value={input.username}
                                 onChange={changeEventHandler}
                                 placeholder="Enter your username"
+                                className="bg-white text-gray-900 placeholder:text-gray-400 border-gray-300 focus-visible:ring-2 focus-visible:ring-black"
                             />
+
                         </div>
 
                         {/* Email Input */}
@@ -113,15 +116,20 @@ const Signup = () => {
                                 value={input.email}
                                 onChange={changeEventHandler}
                                 placeholder="Enter your email"
+                                className="bg-white text-gray-900 placeholder:text-gray-400 border-gray-300 focus-visible:ring-2 focus-visible:ring-black"
+
                             />
+
                         </div>
 
                         {/* Password Input */}
+                        {/* Password */}
                         <div className="space-y-2">
                             <label className="text-sm font-semibold text-gray-700 flex items-center gap-2">
                                 <Lock className="w-4 h-4 text-gray-500" />
                                 Password
                             </label>
+
                             <div className="relative">
                                 <Input
                                     type={showPassword ? "text" : "password"}
@@ -129,20 +137,48 @@ const Signup = () => {
                                     value={input.password}
                                     onChange={changeEventHandler}
                                     placeholder="Create a strong password"
-                                    className="pr-12"
+                                    className="pr-12 bg-white text-gray-900 placeholder:text-gray-400 border-gray-300 focus-visible:ring-2 focus-visible:ring-black"
                                 />
+
                                 <button
                                     type="button"
-                                    onClick={() => setShowPassword(!showPassword)}
-                                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 transition-colors"
+                                    onMouseDown={(e) => e.preventDefault()}
+                                    onClick={() => setShowPassword(prev => !prev)}
+                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
                                 >
                                     {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                                 </button>
                             </div>
-                            <p className="text-xs text-gray-500 mt-1">
-                                Must be at least 8 characters long
-                            </p>
                         </div>
+
+                        {/* Confirm Password */}
+                        <div className="space-y-2">
+                            <label className="text-sm font-semibold text-gray-700 flex items-center gap-2">
+                                <Lock className="w-4 h-4 text-gray-500" />
+                                Confirm Password
+                            </label>
+
+                            <div className="relative">
+                                <Input
+                                    type={showConfirmPassword ? "text" : "password"}
+                                    name="confirmPassword"
+                                    value={input.confirmPassword}
+                                    onChange={changeEventHandler}
+                                    placeholder="Re-enter your password"
+                                    className="pr-12 bg-white text-gray-900 placeholder:text-gray-400 border-gray-300 focus-visible:ring-2 focus-visible:ring-black"
+                                />
+
+                                <button
+                                    type="button"
+                                    onMouseDown={(e) => e.preventDefault()}
+                                    onClick={() => setShowConfirmPassword(prev => !prev)}
+                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                                >
+                                    {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                                </button>
+                            </div>
+                        </div>
+
 
                         {/* Submit Button */}
                         <Button onClick={signupHandler} disabled={loading} className="mt-6 w-full">
@@ -165,13 +201,6 @@ const Signup = () => {
                         </Link>
                     </p>
 
-                    {/* Terms */}
-                    <p className="text-xs text-center text-gray-500 mt-4">
-                        By signing up, you agree to our{' '}
-                        <Link to="/terms" className="text-blue-600 hover:underline">Terms</Link>
-                        {' '}and{' '}
-                        <Link to="/privacy" className="text-blue-600 hover:underline">Privacy Policy</Link>
-                    </p>
                 </div>
             </div>
 

@@ -1,0 +1,47 @@
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.65);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+}
+
+.switch-account-modal {
+  width: 380px;
+  background: #262626;
+  border-radius: 12px;
+  padding: 32px;
+  position: relative;
+}
+
+.switch-account-modal .logo {
+  text-align: center;
+  font-family: 'Instagram Sans', cursive;
+  margin-bottom: 24px;
+}
+
+.switch-account-modal input {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 10px;
+  background: #121212;
+  border: 1px solid #333;
+  border-radius: 6px;
+  color: #fff;
+}
+
+.switch-account-modal button[type="submit"] {
+  width: 100%;
+  background: #4f5bd5;
+  padding: 10px;
+  border-radius: 8px;
+  font-weight: 600;
+}
+
+.close-btn {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+}

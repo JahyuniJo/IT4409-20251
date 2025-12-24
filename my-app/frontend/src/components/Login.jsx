@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button'
 import axios from 'axios'
 import { toast } from 'sonner'
 import { Link, useNavigate } from 'react-router-dom'
-import { Loader2, Mail, Lock } from 'lucide-react'
+import { Loader2, Mail, Lock, Eye, EyeOff } from 'lucide-react'
 import { useDispatch, useSelector } from 'react-redux'
 import { setAuthUser } from '@/redux/authSlice'
 
@@ -19,7 +19,7 @@ const Login = () => {
     const { user } = useSelector(store => store.auth)
     const navigate = useNavigate()
     const dispatch = useDispatch()
-
+    const [showPassword, setShowPassword] = useState(false);
     const changeEventHandler = (e) => {
         setInput({ ...input, [e.target.name]: e.target.value })
     }
@@ -98,9 +98,10 @@ const Login = () => {
                                 value={input.email}
                                 onChange={changeEventHandler}
                                 placeholder="Enter your email"
-                                className="focus-visible:ring-transparent"
+                                className=" bg-white text-gray-900 placeholder:text-gray-400focus-visible:ring-2focus-visible:ring-black"
                                 required
                             />
+
                         </div>
 
                         {/* Password Input */}
@@ -109,16 +110,33 @@ const Login = () => {
                                 <Lock className="w-4 h-4 text-gray-500" />
                                 Password
                             </label>
-                            <Input
-                                type="password"
-                                name="password"
-                                value={input.password}
-                                onChange={changeEventHandler}
-                                placeholder="Enter your password"
-                                className="focus-visible:ring-transparent"
-                                required
-                            />
+
+                            <div className="relative">
+                                <Input
+                                    type={showPassword ? "text" : "password"}
+                                    name="password"
+                                    value={input.password}
+                                    onChange={changeEventHandler}
+                                    placeholder="Enter your password"
+                                    className="pr-12 bg-white text-gray-900 placeholder:text-gray-400 focus-visible:ring-2 focus-visible:ring-black"
+                                    required
+                                />
+
+                                <button
+                                    type="button"
+                                    onMouseDown={(e) => e.preventDefault()}
+                                    onClick={() => setShowPassword(prev => !prev)}
+                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                                >
+                                    {showPassword ? (
+                                        <EyeOff className="w-5 h-5" />
+                                    ) : (
+                                        <Eye className="w-5 h-5" />
+                                    )}
+                                </button>
+                            </div>
                         </div>
+
 
                         {/* Submit Button */}
                         <Button type="submit" disabled={loading} className="mt-6 w-full">
@@ -139,14 +157,6 @@ const Login = () => {
                         <Link to="/signup" className="font-semibold text-blue-600 hover:text-blue-700 transition-colors">
                             Sign up
                         </Link>
-                    </p>
-
-                    {/* Terms */}
-                    <p className="text-xs text-center text-gray-500 mt-4">
-                        By continuing, you agree to our{' '}
-                        <Link to="/terms" className="text-blue-600 hover:underline">Terms</Link>
-                        {' '}and{' '}
-                        <Link to="/privacy" className="text-blue-600 hover:underline">Privacy Policy</Link>
                     </p>
                 </div>
             </div>
