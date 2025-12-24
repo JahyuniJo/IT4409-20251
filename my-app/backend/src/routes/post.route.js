@@ -10,7 +10,9 @@ import {
     getAllPost, 
     getCommentsOfPost, 
     getUserPost, 
-    likePost 
+    likePost,
+    editComment,
+    deleteComment
 } from "../controllers/post.controller.js";
 
 const router = express.Router();
@@ -24,5 +26,8 @@ router.route("/:id/comment").post(isAuthenticated, addComment);
 router.route("/:id/comment/all").get(isAuthenticated, getCommentsOfPost);
 router.route("/delete/:id").delete(isAuthenticated, deletePost);
 router.route("/:id/bookmark").get(isAuthenticated, bookmarkPost);
+router.put("/:id", isAuthenticated, editComment);
+router.delete("/:id", isAuthenticated, deleteComment);
+
 
 export default router;

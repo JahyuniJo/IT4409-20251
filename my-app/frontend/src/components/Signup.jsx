@@ -78,10 +78,10 @@ const Signup = () => {
                             </svg>
                         </div>
                         <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-2">
-                            Create Account
+                            Tạo tài khoản mới
                         </h1>
                         <p className="text-gray-600 text-sm">
-                            Join us to connect with friends and share moments
+                            Tham gia cùng chúng tôi ngay hôm nay!
                         </p>
                     </div>
 
@@ -98,7 +98,7 @@ const Signup = () => {
                                 name="username"
                                 value={input.username}
                                 onChange={changeEventHandler}
-                                placeholder="Enter your username"
+                                placeholder="Nhập tên người dùng"
                                 className="bg-white text-gray-900 placeholder:text-gray-400 border-gray-300 focus-visible:ring-2 focus-visible:ring-black"
                             />
 
@@ -115,7 +115,7 @@ const Signup = () => {
                                 name="email"
                                 value={input.email}
                                 onChange={changeEventHandler}
-                                placeholder="Enter your email"
+                                placeholder="Nhập email"
                                 className="bg-white text-gray-900 placeholder:text-gray-400 border-gray-300 focus-visible:ring-2 focus-visible:ring-black"
 
                             />
@@ -136,7 +136,7 @@ const Signup = () => {
                                     name="password"
                                     value={input.password}
                                     onChange={changeEventHandler}
-                                    placeholder="Create a strong password"
+                                    placeholder="Nhập mật khẩu"
                                     className="pr-12 bg-white text-gray-900 placeholder:text-gray-400 border-gray-300 focus-visible:ring-2 focus-visible:ring-black"
                                 />
 
@@ -164,7 +164,7 @@ const Signup = () => {
                                     name="confirmPassword"
                                     value={input.confirmPassword}
                                     onChange={changeEventHandler}
-                                    placeholder="Re-enter your password"
+                                    placeholder="Nhập lại mật khẩu"
                                     className="pr-12 bg-white text-gray-900 placeholder:text-gray-400 border-gray-300 focus-visible:ring-2 focus-visible:ring-black"
                                 />
 
@@ -188,16 +188,16 @@ const Signup = () => {
                                     Creating account...
                                 </span>
                             ) : (
-                                'Sign Up'
+                                'Đăng ký'
                             )}
                         </Button>
                     </div>
 
                     {/* Login Link */}
                     <p className="text-center text-sm text-gray-600 mt-6">
-                        Already have an account?{' '}
+                        Đã có tài khoản?{' '}
                         <Link to="/login" className="font-semibold text-blue-600 hover:text-blue-700 transition-colors">
-                            Log in
+                            Đăng nhập
                         </Link>
                     </p>
 

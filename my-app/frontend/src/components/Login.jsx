@@ -77,10 +77,10 @@ const Login = () => {
                             </svg>
                         </div>
                         <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-2">
-                            Welcome Back
+                            Chào mừng trở lại!
                         </h1>
                         <p className="text-gray-600 text-sm">
-                            Login to see photos & videos from your friends
+                            Đăng nhập vào tài khoản của bạn
                         </p>
                     </div>
 
@@ -97,8 +97,8 @@ const Login = () => {
                                 name="email"
                                 value={input.email}
                                 onChange={changeEventHandler}
-                                placeholder="Enter your email"
-                                className=" bg-white text-gray-900 placeholder:text-gray-400focus-visible:ring-2focus-visible:ring-black"
+                                placeholder="Nhập email"
+                                className=" bg-white text-gray-900 placeholder:text-gray-400 focus-visible:ring-2 focus-visible:ring-black"
                                 required
                             />
 
@@ -117,7 +117,7 @@ const Login = () => {
                                     name="password"
                                     value={input.password}
                                     onChange={changeEventHandler}
-                                    placeholder="Enter your password"
+                                    placeholder="Nhập mật khẩu"
                                     className="pr-12 bg-white text-gray-900 placeholder:text-gray-400 focus-visible:ring-2 focus-visible:ring-black"
                                     required
                                 />
@@ -146,16 +146,16 @@ const Login = () => {
                                     Please wait...
                                 </span>
                             ) : (
-                                'Login'
+                                'Đăng nhập'
                             )}
                         </Button>
                     </form>
 
                     {/* Signup Link */}
                     <p className="text-center text-sm text-gray-600 mt-6">
-                        Do not have an account?{' '}
+                        Chưa có tài khoản?{' '}
                         <Link to="/signup" className="font-semibold text-blue-600 hover:text-blue-700 transition-colors">
-                            Sign up
+                            Đăng ký ngay
                         </Link>
                     </p>
                 </div>

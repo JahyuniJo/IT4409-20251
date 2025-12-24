@@ -13,7 +13,7 @@ export const addNewPost = async (req, res) => {
         const authorId = req.userId;
 
         if (!image) {
-            return res.status(400).json({ 
+            return res.status(400).json({
                 message: 'Image required',
                 success: false
             });
@@ -28,13 +28,13 @@ export const addNewPost = async (req, res) => {
         // Buffer to data URI
         const fileUri = `data:image/jpeg;base64,${optimizedImageBuffer.toString('base64')}`;
         const cloudResponse = await cloudinary.uploader.upload(fileUri);
-        
+
         const post = await Post.create({
             caption,
             image: cloudResponse.secure_url,
             author: authorId
         });
-        
+
         const user = await User.findById(authorId);
         if (user) {
             user.posts.push(post._id);
@@ -71,7 +71,7 @@ export const getAllPost = async (req, res) => {
                     select: 'username profilePicture'
                 }
             });
-        
+
         return res.status(200).json({
             posts,
             success: true
@@ -88,7 +88,7 @@ export const getAllPost = async (req, res) => {
 export const getUserPost = async (req, res) => {
     try {
         const authorId = req.userId;
-        
+
         const posts = await Post.find({ author: authorId })
             .sort({ createdAt: -1 })
             .populate({
@@ -103,7 +103,7 @@ export const getUserPost = async (req, res) => {
                     select: 'username profilePicture'
                 }
             });
-        
+
         return res.status(200).json({
             posts,
             success: true
@@ -121,12 +121,12 @@ export const likePost = async (req, res) => {
     try {
         const likeKrneWalaUserKiId = req.userId;
         const postId = req.params.id;
-        
+
         const post = await Post.findById(postId);
         if (!post) {
-            return res.status(404).json({ 
-                message: 'Post not found', 
-                success: false 
+            return res.status(404).json({
+                message: 'Post not found',
+                success: false
             });
         }
 
@@ -137,7 +137,7 @@ export const likePost = async (req, res) => {
         // Implement socket.io for real-time notification
         const user = await User.findById(likeKrneWalaUserKiId)
             .select('username profilePicture');
-         
+
         const postOwnerId = post.author.toString();
         if (postOwnerId !== likeKrneWalaUserKiId) {
             // Emit a notification event
@@ -155,7 +155,7 @@ export const likePost = async (req, res) => {
         }
 
         return res.status(200).json({
-            message: 'Post liked', 
+            message: 'Post liked',
             success: true
         });
     } catch (error) {
@@ -171,12 +171,12 @@ export const dislikePost = async (req, res) => {
     try {
         const likeKrneWalaUserKiId = req.userId;
         const postId = req.params.id;
-        
+
         const post = await Post.findById(postId);
         if (!post) {
-            return res.status(404).json({ 
-                message: 'Post not found', 
-                success: false 
+            return res.status(404).json({
+                message: 'Post not found',
+                success: false
             });
         }
 
@@ -187,7 +187,7 @@ export const dislikePost = async (req, res) => {
         // Implement socket.io for real-time notification
         const user = await User.findById(likeKrneWalaUserKiId)
             .select('username profilePicture');
-        
+
         const postOwnerId = post.author.toString();
         if (postOwnerId !== likeKrneWalaUserKiId) {
             // Emit a notification event
@@ -205,7 +205,7 @@ export const dislikePost = async (req, res) => {
         }
 
         return res.status(200).json({
-            message: 'Post disliked', 
+            message: 'Post disliked',
             success: true
         });
     } catch (error) {
@@ -220,52 +220,46 @@ export const dislikePost = async (req, res) => {
 export const addComment = async (req, res) => {
     try {
         const postId = req.params.id;
-        const commentKrneWalaUserKiId = req.userId;
-        const { text } = req.body;
-
-        const post = await Post.findById(postId);
-        if (!post) {
-            return res.status(404).json({
-                message: 'Post not found',
-                success: false
-            });
-        }
+        const userId = req.userId;
+        const { text, parentId = null } = req.body;
 
         if (!text) {
             return res.status(400).json({
-                message: 'Text is required', 
+                message: 'Text is required',
                 success: false
             });
         }
 
         const comment = await Comment.create({
             text,
-            author: commentKrneWalaUserKiId,
-            post: postId
+            author: userId,
+            post: postId,
+            parentId
         });
 
         await comment.populate({
             path: 'author',
             select: 'username profilePicture'
         });
-        
-        post.comments.push(comment._id);
-        await post.save();
 
-        return res.status(201).json({
-            message: 'Comment Added',
-            comment,
-            success: true
+        await Post.findByIdAndUpdate(postId, {
+            $push: { comments: comment._id }
         });
 
+        res.status(201).json({
+            success: true,
+            comment
+        });
     } catch (error) {
         console.log(error);
-        return res.status(500).json({
+        res.status(500).json({
             message: 'Failed to add comment',
             success: false
         });
     }
 };
+
+
 
 export const getCommentsOfPost = async (req, res) => {
     try {
@@ -297,6 +291,69 @@ export const getCommentsOfPost = async (req, res) => {
     }
 }
 
+
+export const editComment = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { text } = req.body;
+
+        const comment = await Comment.findById(id);
+        if (!comment) {
+            return res.status(404).json({ success: false, message: "Comment not found" });
+        }
+
+        if (comment.author.toString() !== req.userId) {
+            return res.status(403).json({ success: false, message: "Unauthorized" });
+        }
+
+        comment.text = text;
+        await comment.save();
+        await comment.populate({
+            path: "author",
+            select: "username profilePicture"
+        });
+        res.status(200).json({
+            success: true,
+            comment,
+            message: "Comment updated",
+        });
+    } catch (err) {
+        res.status(500).json({ success: false, message: "Server error" });
+    }
+};
+
+export const deleteComment = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        const comment = await Comment.findById(id);
+        if (!comment) {
+            return res.status(404).json({ success: false });
+        }
+
+        if (comment.author.toString() !== req.userId) {
+            return res.status(403).json({ success: false });
+        }
+
+        // xóa comment con
+        await Comment.deleteMany({ parentId: id });
+
+        // xóa chính nó
+        await Comment.findByIdAndDelete(id);
+
+        // pull khỏi post
+        await Post.updateOne(
+            { _id: comment.post },
+            { $pull: { comments: id } }
+        );
+
+        res.status(200).json({ success: true, commentId: id });
+    } catch (err) {
+        res.status(500).json({ success: false });
+    }
+};
+
+
 export const deletePost = async (req, res) => {
     try {
         const postId = req.params.id;
@@ -305,7 +362,7 @@ export const deletePost = async (req, res) => {
         const post = await Post.findById(postId);
         if (!post) {
             return res.status(404).json({
-                message: 'Post not found', 
+                message: 'Post not found',
                 success: false
             });
         }
