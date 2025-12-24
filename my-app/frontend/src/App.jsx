@@ -6,6 +6,7 @@ import Login from './components/Login'
 import MainLayout from './components/MainLayout'
 import Profile from './components/Profile'
 import Signup from './components/Signup'
+import Search from './components/Search'  
 import ProtectedRoutes from './components/ProtectedRoutes'
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 import { io } from "socket.io-client";
@@ -29,6 +30,8 @@ const browserRouter = createBrowserRouter([
         path: '/',
         element: <Home />
       },
+       { path: "search",
+         element: <Search /> },
       {
         path: '/profile/:id',
         element: <Profile />
