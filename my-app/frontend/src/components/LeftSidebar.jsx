@@ -184,7 +184,14 @@ export default function LeftSidebar() {
             <div className="more-menu" onClick={(e) => e.stopPropagation()}>
               <MenuItem icon={<Settings size={18} />} text="Cài đặt" />
               <MenuItem icon={<Activity size={18} />} text="Hoạt động của bạn" />
-              <MenuItem icon={<Bookmark size={18} />} text="Đã lưu" />
+              <MenuItem
+                icon={<Bookmark size={18} />}
+                text="Đã lưu"
+                onClick={() => {
+                  setShowMore(false);
+                  navigate(`/profile/${user?._id}?tab=saved`);
+                }}
+              />
               <MenuItem icon={<Moon size={18} />} text="Chuyển chế độ" />
               <MenuItem icon={<AlertCircle size={18} />} text="Báo cáo sự cố" />
 

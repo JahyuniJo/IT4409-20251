@@ -16,18 +16,24 @@ const API_URL = import.meta.env.VITE_API_URL;
 
 const Post = ({ post }) => {
     const [text, setText] = useState("");
-    const [open, setOpen] = useState(false);
+    // const [open, setOpen] = useState(false);
     const { user } = useSelector(store => store.auth);
     const { posts } = useSelector(store => store.post);
     const isLiked = post.likes.includes(user?._id);
     const likeCount = post.likes.length;
     const isBookmarked = user?.bookmarks?.includes(post._id);
     const isFollowing = user?.following?.includes(post.author?._id);
+    const [isCommentOpen, setIsCommentOpen] = useState(false);
+    const [activePostId, setActivePostId] = useState(null);
 
     // const [liked, setLiked] = useState(post.likes.includes(user?._id) || false);
     // const [postLike, setPostLike] = useState(post.likes.length);
     // const [comment, setComment] = useState(post.comments);
     const dispatch = useDispatch();
+    const openComment = (postId) => {
+        setActivePostId(postId);
+        setIsCommentOpen(true);
+    };
 
     const changeEventHandler = (e) => {
         setText(e.target.value);
@@ -224,10 +230,10 @@ const Post = ({ post }) => {
                         />
                     )}
                     <MessageCircle
-                        onClick={() => { dispatch(setSelectedPost(post)); setOpen(true); }}
-                        className="text-white hover:text-gray-500 cursor-pointer"
-                        size={24}
+                        onClick={() => openComment(post._id)}
+                        className="text-white hover:text-gray-500 cursor-pointer" size={24}
                     />
+
                     <Send className="text-white hover:text-gray-500 cursor-pointer" size={24} />
                 </div>
                 {isBookmarked ? (
@@ -257,8 +263,7 @@ const Post = ({ post }) => {
                 </div>
 
                 {post.comments.length > 0 && (
-                    <div
-                        onClick={() => { dispatch(setSelectedPost(post)); setOpen(true); }}
+                    <div onClick={() => openComment(post._id)}
                         className="mt-1.5 text-gray-500 cursor-pointer hover:text-gray-400 text-sm"
                     >
                         View all {post.comments.length} comments
@@ -268,7 +273,15 @@ const Post = ({ post }) => {
             </div>
 
             {/* Comment Dialog */}
-            <CommentDialog open={open} setOpen={setOpen} />
+            <CommentDialog
+                open={isCommentOpen}
+                onClose={() => {
+                    setIsCommentOpen(false);
+                    setActivePostId(null);
+                }}
+                postId={activePostId}
+            />
+
 
             {/* Input Field */}
             <div className="flex items-center justify-between mt-3 px-1">

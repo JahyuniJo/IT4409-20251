@@ -5,7 +5,7 @@ import { getReceiverSocketId, io } from "../socket/socket.js";
 
 export const sendMessage = async (req, res) => {
     try {
-        const senderId = req.id;
+        const senderId = req.userId;
         const receiverId = req.params.id;
         const { textMessage: message } = req.body;
 
@@ -52,23 +52,29 @@ export const sendMessage = async (req, res) => {
 
 export const getMessage = async (req, res) => {
     try {
-        const senderId = req.id;
+        const senderId = req.userId;
         const receiverId = req.params.id;
 
-        const conversation = await Conversation.findOne({
+        let conversation = await Conversation.findOne({
             participants: { $all: [senderId, receiverId] }
         }).populate('messages');
 
+        // 🔑 TẠO CONVERSATION NẾU CHƯA CÓ
         if (!conversation) {
-            return res.status(200).json({ 
-                success: true, 
-                messages: [] 
+            conversation = await Conversation.create({
+                participants: [senderId, receiverId],
+                messages: []
+            });
+
+            return res.status(200).json({
+                success: true,
+                messages: []
             });
         }
 
-        return res.status(200).json({ 
-            success: true, 
-            messages: conversation?.messages 
+        return res.status(200).json({
+            success: true,
+            messages: conversation.messages
         });
 
     } catch (error) {
@@ -78,4 +84,4 @@ export const getMessage = async (req, res) => {
             success: false
         });
     }
-}
+};

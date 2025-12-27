@@ -1,7 +1,7 @@
 import { combineReducers, configureStore } from "@reduxjs/toolkit";
 import authSlice from "./authSlice.js";
 import postSlice from './postSlice.js';
-import socketSlice from "./socketSlice.js"
+// import socketSlice from "./socketSlice.js"
 import chatSlice from "./chatSlice.js";
 import rtnSlice from "./rtnSlice.js";
 
@@ -21,12 +21,13 @@ const persistConfig = {
     key: 'root',
     version: 1,
     storage,
+    // blacklist: ['socketio']
 }
 
 const rootReducer = combineReducers({
     auth:authSlice,
     post:postSlice,
-    socketio:socketSlice,
+    // socketio:socketSlice,
     chat:chatSlice,
     realTimeNotification:rtnSlice
 })
