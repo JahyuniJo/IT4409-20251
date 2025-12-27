@@ -65,98 +65,102 @@ const CreatePost = ({ open, setOpen }) => {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent onInteractOutside={() => setOpen(false)} className="sm:max-w-[500px] p-0 gap-0 overflow-hidden bg-white rounded-xl">
-        
-        <div className="flex items-center justify-between border-b px-4 py-3 bg-white z-10">
+      <DialogContent className="
+    p-0 bg-white rounded-xl 
+    w-[520px] 
+    font-sans text-gray-900
+  ">
+
+        {/* ===== Header ===== */}
+        <div className="flex items-center justify-between px-4 py-3 border-b">
           {imagePreview ? (
-            <Button variant="ghost" size="icon" onClick={clearImageHandler} className="h-8 w-8 -ml-2 text-gray-600">
-              <ArrowLeft className="h-5 w-5" />
-            </Button>
+            <button onClick={clearImageHandler} className="text-gray-600 hover:text-black">
+              <ArrowLeft size={20} />
+            </button>
           ) : (
-            <div className="w-8"></div>
+            <div className="w-5" />
           )}
-          
-          <h2 className="text-base font-semibold text-gray-900">Tạo bài viết mới</h2>
+
+          <h2 className="text-sm font-semibold tracking-wide">
+            Create new post
+          </h2>
 
           {imagePreview ? (
-            loading ? (
-              <div className="flex items-center text-blue-500 text-sm font-semibold">
-                <Loader2 className='mr-1 h-4 w-4 animate-spin' />
-              </div>
-            ) : (
-              <Button 
-                variant="ghost" 
-                onClick={createPostHandler} 
-                className="text-[#0095F6] font-bold hover:bg-transparent hover:text-[#00376b] px-0 h-auto text-sm"
-              >
-                Chia sẻ
-              </Button>
-            )
+            <button
+              disabled={loading}
+              onClick={createPostHandler}
+              className="text-sm font-semibold text-[#0095F6] disabled:opacity-50"
+            >
+              {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Share"}
+            </button>
           ) : (
-            <div className="w-8"></div>
+            <div className="w-5" />
           )}
         </div>
 
-        <div className="flex flex-col">
-          {!imagePreview ? (
-            <div className="flex flex-col items-center justify-center h-[400px] gap-4 p-8">
-              <div className="relative">
-                <div className="absolute inset-0 bg-gray-100 rounded-full blur-xl opacity-50"></div>
-                <ImagePlus className="w-20 h-20 text-gray-300 relative z-10" strokeWidth={1} />
-              </div>
-              <p className="text-xl font-light text-gray-600">Kéo ảnh vào đây</p>
-              
-              <input ref={imageRef} type='file' accept="image/*" className='hidden' onChange={fileChangeHandler} />
-              
-              <Button 
-                onClick={() => imageRef.current.click()} 
-                className='bg-[#0095F6] hover:bg-[#1877F2] text-sm font-semibold px-6 py-2 rounded-lg'
-              >
-                Chọn từ máy tính
-              </Button>
+        {/* ===== Body ===== */}
+        {!imagePreview ? (
+          /* STEP 1 – SELECT IMAGE */
+          <div className="flex flex-col items-center justify-center h-[420px] gap-4">
+            <ImagePlus className="h-20 w-20 text-gray-300" />
+            <p className="text-base font-medium text-gray-700">
+              Drag photos here
+            </p>
+
+            <input
+              ref={imageRef}
+              type="file"
+              accept="image/*"
+              hidden
+              onChange={fileChangeHandler}
+            />
+
+            <button
+              onClick={() => imageRef.current.click()}
+              className="px-6 py-2 text-sm font-semibold text-white bg-[#0095F6] rounded-md hover:bg-[#1877F2]"
+            >
+              Select from computer
+            </button>
+          </div>
+        ) : (
+          /* STEP 2 – PREVIEW + CAPTION */
+          <div className="flex flex-col">
+            <div className="bg-black flex justify-center max-h-[380px]">
+              <img
+                src={imagePreview}
+                alt="preview"
+                className="object-contain max-h-[380px]"
+              />
             </div>
-          ) : (
-            <div className="flex flex-col max-h-[70vh] overflow-y-auto">
-              <div className="w-full bg-gray-100 flex items-center justify-center min-h-[300px]">
-                 <img 
-                    src={imagePreview} 
-                    alt="preview_img" 
-                    className='w-full h-auto max-h-[400px] object-contain' 
-                 />
+
+            <div className="p-4 space-y-3">
+              <div className="flex items-center gap-3">
+                <Avatar className="h-7 w-7">
+                  <AvatarImage src={user?.profilePicture} />
+                  <AvatarFallback>CN</AvatarFallback>
+                </Avatar>
+                <span className="text-sm font-semibold">
+                  {user?.username}
+                </span>
               </div>
 
-              <div className="p-4 space-y-3">
-                <div className='flex gap-3 items-center'>
-                  <Avatar className="h-8 w-8">
-                    <AvatarImage src={user?.profilePicture} alt="img" />
-                    <AvatarFallback>CN</AvatarFallback>
-                  </Avatar>
-                  <span className='font-semibold text-sm text-gray-900'>{user?.username}</span>
-                </div>
-                
-                <Textarea 
-                  value={caption} 
-                  onChange={(e) => setCaption(e.target.value)} 
-                  className="min-h-[100px] focus-visible:ring-0 border-none resize-none p-0 text-base placeholder:text-gray-400" 
-                  placeholder="Caption ..." 
-                />
-              </div>
-              
-              <div className="px-4 pb-4 border-t pt-3 mt-auto">
-                <input ref={imageRef} type='file' accept="image/*" className='hidden' onChange={fileChangeHandler} />
-                <Button 
-                   variant="outline"
-                   onClick={() => imageRef.current.click()} 
-                   className='w-full text-xs text-gray-500 border-gray-200'
-                >
-                  Thay đổi ảnh 
-                </Button>
-              </div>
+              <Textarea
+                value={caption}
+                onChange={e => setCaption(e.target.value)}
+                placeholder="Write a caption..."
+                className="
+              border-none resize-none p-0
+              text-sm leading-5
+              focus-visible:ring-0
+              placeholder:text-gray-400
+            "
+              />
             </div>
-          )}
-        </div>
+          </div>
+        )}
       </DialogContent>
     </Dialog>
+
   )
 }
 

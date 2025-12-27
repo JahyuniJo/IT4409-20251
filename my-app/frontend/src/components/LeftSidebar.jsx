@@ -39,8 +39,6 @@ function MenuItem({ icon, text, onClick, danger }) {
 }
 
 
-
-
 export default function LeftSidebar() {
   const navigate = useNavigate();
   const location = useLocation();
