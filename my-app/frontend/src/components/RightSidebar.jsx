@@ -37,7 +37,7 @@ const RightSidebar = () => {
         },
         withCredentials: true
       });
-      
+
       if (res.data.success) {
         // Update local state
         if (followingUsers.includes(userId)) {
@@ -74,8 +74,8 @@ const RightSidebar = () => {
           </Link>
           <p className='text-gray-500 text-sm truncate'>{user.bio || 'No bio yet'}</p>
         </div>
-        <Button 
-          variant="ghost" 
+        <Button
+          variant="ghost"
           onClick={handleLogout}
           className='text-blue-500 font-semibold text-sm hover:text-blue-600 hover:bg-transparent'
         >
@@ -113,14 +113,13 @@ const RightSidebar = () => {
                     {suggestedUser.bio || 'No bio'}
                   </p>
                 </div>
-                <Button 
+                <Button
                   variant="ghost"
                   onClick={() => handleFollow(suggestedUser._id)}
-                  className={`font-semibold text-xs p-0 h-auto hover:bg-transparent transition-colors ${
-                    followingUsers.includes(suggestedUser._id) 
-                      ? 'text-gray-700 hover:text-gray-900' 
+                  className={`font-semibold text-xs p-0 h-auto hover:bg-transparent transition-colors ${followingUsers.includes(suggestedUser._id)
+                      ? 'text-gray-700 hover:text-gray-900'
                       : 'text-blue-500 hover:text-blue-600'
-                  }`}
+                    }`}
                 >
                   {followingUsers.includes(suggestedUser._id) ? 'Following' : 'Follow'}
                 </Button>
@@ -132,15 +131,6 @@ const RightSidebar = () => {
 
       {/* Footer Links */}
       <div className='mt-8 text-xs text-gray-400 space-y-2'>
-        <div className='flex flex-wrap gap-2'>
-          <a href="#" className='hover:underline'>About</a>
-          <a href="#" className='hover:underline'>Help</a>
-          <a href="#" className='hover:underline'>Press</a>
-          <a href="#" className='hover:underline'>API</a>
-          <a href="#" className='hover:underline'>Jobs</a>
-          <a href="#" className='hover:underline'>Privacy</a>
-          <a href="#" className='hover:underline'>Terms</a>
-        </div>
         <p> IT4490 INSTAGRAM CLONE</p>
       </div>
     </div>
