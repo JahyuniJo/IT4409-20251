@@ -9,14 +9,14 @@
 // export const register = async (req, res) => {
 //     try {
 //         const { username, email, password } = req.body;
-        
+
 //         if (!username || !email || !password) {
 //             return res.status(401).json({
 //                 message: "Something is missing, please check!",
 //                 success: false,
 //             });
 //         }
-        
+
 //         const user = await User.findOne({ email });
 //         if (user) {
 //             return res.status(401).json({
@@ -24,14 +24,14 @@
 //                 success: false,
 //             });
 //         }
-        
+
 //         const hashedPassword = await bcrypt.hash(password, 10);
 //         await User.create({
 //             username,
 //             email,
 //             password: hashedPassword
 //         });
-        
+
 //         return res.status(201).json({
 //             message: "Account created successfully.",
 //             success: true,
@@ -48,14 +48,14 @@
 // export const login = async (req, res) => {
 //     try {
 //         const { email, password } = req.body;
-        
+
 //         if (!email || !password) {
 //             return res.status(401).json({
 //                 message: "Something is missing, please check!",
 //                 success: false,
 //             });
 //         }
-        
+
 //         let user = await User.findOne({ email });
 //         if (!user) {
 //             return res.status(401).json({
@@ -63,7 +63,7 @@
 //                 success: false,
 //             });
 //         }
-        
+
 //         const isPasswordMatch = await bcrypt.compare(password, user.password);
 //         if (!isPasswordMatch) {
 //             return res.status(401).json({
@@ -88,7 +88,7 @@
 //                 return null;
 //             })
 //         );
-        
+
 //         user = {
 //             _id: user._id,
 //             username: user.username,
@@ -100,7 +100,7 @@
 //             following: user.following,
 //             posts: populatedPosts.filter(post => post !== null)
 //         }
-        
+
 //         return res
 //             .cookie('token', token, { 
 //                 httpOnly: true, 
@@ -140,18 +140,18 @@
 // export const getProfile = async (req, res) => {
 //     try {
 //         const userId = req.params.id;
-        
+
 //         let user = await User.findById(userId)
 //             .populate({ path: 'posts', options: { sort: { createdAt: -1 } } })
 //             .populate('bookmarks');
-        
+
 //         if (!user) {
 //             return res.status(404).json({
 //                 message: 'User not found',
 //                 success: false
 //             });
 //         }
-        
+
 //         return res.status(200).json({
 //             user,
 //             success: true
@@ -184,7 +184,7 @@
 //                 success: false
 //             });
 //         }
-        
+
 //         if (bio) user.bio = bio;
 //         if (gender) user.gender = gender;
 //         if (profilePicture) user.profilePicture = cloudResponse.secure_url;
@@ -228,7 +228,7 @@
 //         })
 //         .select("-password")
 //         .limit(10);
-        
+
 //         if (!suggestedUsers || suggestedUsers.length === 0) {
 //             return res.status(200).json({
 //                 message: 'Currently do not have any users',
@@ -236,7 +236,7 @@
 //                 users: []
 //             });
 //         }
-        
+
 //         return res.status(200).json({
 //             success: true,
 //             users: suggestedUsers
@@ -254,7 +254,7 @@
 //     try {
 //         const followKrneWala = req.id; // Current user
 //         const jiskoFollowKrunga = req.params.id; // Target user
-        
+
 //         if (followKrneWala === jiskoFollowKrunga) {
 //             return res.status(400).json({
 //                 message: 'You cannot follow/unfollow yourself',
@@ -271,10 +271,10 @@
 //                 success: false
 //             });
 //         }
-        
+
 //         // Check if already following
 //         const isFollowing = user.following.includes(jiskoFollowKrunga);
-        
+
 //         if (isFollowing) {
 //             // Unfollow logic
 //             await Promise.all([
@@ -328,14 +328,14 @@ import { Post } from "../models/post.model.js";
 export const register = async (req, res) => {
     try {
         const { username, email, password } = req.body;
-        
+
         if (!username || !email || !password) {
             return res.status(401).json({
                 message: "Something is missing, please check!",
                 success: false,
             });
         }
-        
+
         const user = await User.findOne({ email });
         if (user) {
             return res.status(401).json({
@@ -343,14 +343,14 @@ export const register = async (req, res) => {
                 success: false,
             });
         }
-        
+
         const hashedPassword = await bcrypt.hash(password, 10);
         await User.create({
             username,
             email,
             password: hashedPassword
         });
-        
+
         return res.status(201).json({
             message: "Account created successfully.",
             success: true,
@@ -367,14 +367,14 @@ export const register = async (req, res) => {
 export const login = async (req, res) => {
     try {
         const { email, password } = req.body;
-        
+
         if (!email || !password) {
             return res.status(401).json({
                 message: "Something is missing, please check!",
                 success: false,
             });
         }
-        
+
         let user = await User.findOne({ email });
         if (!user) {
             return res.status(401).json({
@@ -382,7 +382,7 @@ export const login = async (req, res) => {
                 success: false,
             });
         }
-        
+
         const isPasswordMatch = await bcrypt.compare(password, user.password);
         if (!isPasswordMatch) {
             return res.status(401).json({
@@ -392,8 +392,8 @@ export const login = async (req, res) => {
         }
 
         const token = await jwt.sign(
-            { userId: user._id }, 
-            process.env.SECRET_KEY, 
+            { userId: user._id },
+            process.env.SECRET_KEY,
             { expiresIn: '1d' }
         );
 
@@ -407,7 +407,7 @@ export const login = async (req, res) => {
                 return null;
             })
         );
-        
+
         user = {
             _id: user._id,
             username: user.username,
@@ -419,12 +419,12 @@ export const login = async (req, res) => {
             following: user.following,
             posts: populatedPosts.filter(post => post !== null)
         }
-        
+
         return res
-            .cookie('token', token, { 
-                httpOnly: true, 
-                sameSite: 'strict', 
-                maxAge: 1 * 24 * 60 * 60 * 1000 
+            .cookie('token', token, {
+                httpOnly: true,
+                sameSite: 'strict',
+                maxAge: 1 * 24 * 60 * 60 * 1000
             })
             .json({
                 message: `Welcome back ${user.username}`,
@@ -459,29 +459,29 @@ export const logout = async (_, res) => {
 export const getProfile = async (req, res) => {
     try {
         const userId = req.params.id;
-        
+
         let user = await User.findById(userId)
-            .populate({ 
-                path: 'posts', 
-                options: { sort: { createdAt: -1 } } 
+            .populate({
+                path: 'posts',
+                options: { sort: { createdAt: -1 } }
             })
             .populate('bookmarks')
-            .populate({ 
-                path: 'followers', 
-                select: 'username profilePicture bio' 
+            .populate({
+                path: 'followers',
+                select: 'username profilePicture bio'
             })
-            .populate({ 
-                path: 'following', 
-                select: 'username profilePicture bio' 
+            .populate({
+                path: 'following',
+                select: 'username profilePicture bio'
             });
-        
+
         if (!user) {
             return res.status(404).json({
                 message: 'User not found',
                 success: false
             });
         }
-        
+
         return res.status(200).json({
             user,
             success: true
@@ -514,7 +514,7 @@ export const editProfile = async (req, res) => {
                 success: false
             });
         }
-        
+
         if (bio) user.bio = bio;
         if (gender) user.gender = gender;
         if (profilePicture) user.profilePicture = cloudResponse.secure_url;
@@ -541,20 +541,20 @@ export const getSuggestedUsers = async (req, res) => {
         const currentUser = await User.findById(req.id).select('following');
 
         if (!currentUser) {
-            return res.status(404).json({ 
-                message: "User not found", 
-                success: false 
+            return res.status(404).json({
+                message: "User not found",
+                success: false
             });
         }
 
-        const suggestedUsers = await User.find({ 
-            _id: { 
-                $nin: [...currentUser.following, req.id] 
-            } 
+        const suggestedUsers = await User.find({
+            _id: {
+                $nin: [...currentUser.following, req.id]
+            }
         })
-        .select("-password")
-        .limit(10);
-        
+            .select("-password")
+            .limit(10);
+
         if (!suggestedUsers || suggestedUsers.length === 0) {
             return res.status(200).json({
                 message: 'Currently do not have any users',
@@ -562,7 +562,7 @@ export const getSuggestedUsers = async (req, res) => {
                 users: []
             });
         }
-        
+
         return res.status(200).json({
             success: true,
             users: suggestedUsers
@@ -580,7 +580,7 @@ export const followOrUnfollow = async (req, res) => {
     try {
         const followKrneWala = req.id;
         const jiskoFollowKrunga = req.params.id;
-        
+
         if (followKrneWala === jiskoFollowKrunga) {
             return res.status(400).json({
                 message: 'You cannot follow/unfollow yourself',
@@ -597,46 +597,80 @@ export const followOrUnfollow = async (req, res) => {
                 success: false
             });
         }
-        
+
         const isFollowing = user.following.includes(jiskoFollowKrunga);
-        
+
         if (isFollowing) {
             // Unfollow logic
             await Promise.all([
                 User.updateOne(
-                    { _id: followKrneWala }, 
+                    { _id: followKrneWala },
                     { $pull: { following: jiskoFollowKrunga } }
                 ),
                 User.updateOne(
-                    { _id: jiskoFollowKrunga }, 
+                    { _id: jiskoFollowKrunga },
                     { $pull: { followers: followKrneWala } }
                 ),
             ]);
-            return res.status(200).json({ 
-                message: 'Unfollowed successfully', 
-                success: true 
+            return res.status(200).json({
+                message: 'Unfollowed successfully',
+                success: true
             });
         } else {
             // Follow logic
             await Promise.all([
                 User.updateOne(
-                    { _id: followKrneWala }, 
+                    { _id: followKrneWala },
                     { $push: { following: jiskoFollowKrunga } }
                 ),
                 User.updateOne(
-                    { _id: jiskoFollowKrunga }, 
+                    { _id: jiskoFollowKrunga },
                     { $push: { followers: followKrneWala } }
                 ),
             ]);
-            return res.status(200).json({ 
-                message: 'Followed successfully', 
-                success: true 
+            return res.status(200).json({
+                message: 'Followed successfully',
+                success: true
             });
         }
     } catch (error) {
         console.log(error);
         return res.status(500).json({
             message: "Internal server error",
+            success: false
+        });
+    }
+}
+
+export const searchUsers = async (req, res) => {
+    try {
+        const { query } = req.query;
+        const currentUserId = req.id;
+
+        if (!query || query.trim() === '') {
+            return res.status(200).json({
+                success: true,
+                users: []
+            });
+        }
+
+        // Search users by username (case-insensitive)
+        const users = await User.find({
+            username: { $regex: query, $options: 'i' },
+            _id: { $ne: currentUserId } // Exclude current user
+        })
+            .select('username profilePicture bio')
+            .limit(20);
+
+        return res.status(200).json({
+            success: true,
+            users
+        });
+
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({
+            message: "Failed to search users",
             success: false
         });
     }

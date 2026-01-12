@@ -1,18 +1,13 @@
 import mongoose from "mongoose";
 
-const postSchema = new mongoose.Schema({
-    caption: {
-        type: String,
-        default: ''
-    },
-    image: {
+const reelSchema = new mongoose.Schema({
+    video: {
         type: String,
         required: true
     },
-    mediaType: {
+    caption: {
         type: String,
-        enum: ['image', 'video'],
-        default: 'image'
+        default: ''
     },
     author: {
         type: mongoose.Schema.Types.ObjectId,
@@ -26,7 +21,19 @@ const postSchema = new mongoose.Schema({
     comments: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Comment'
-    }]
+    }],
+    views: {
+        type: Number,
+        default: 0
+    },
+    duration: {
+        type: Number, // Duration in seconds
+        max: 60 // Max 60 seconds for reels
+    },
+    thumbnail: {
+        type: String,
+        default: ''
+    }
 }, { timestamps: true });
 
-export const Post = mongoose.model('Post', postSchema);
+export const Reel = mongoose.model('Reel', reelSchema);

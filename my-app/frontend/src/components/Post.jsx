@@ -1,7 +1,7 @@
-import React, { useState } from 'react'
+import React, { useState, useRef } from 'react'
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar'
 import { Dialog, DialogContent, DialogTrigger } from './ui/dialog'
-import { Bookmark, MessageCircle, MoreHorizontal, Send } from 'lucide-react'
+import { Bookmark, MessageCircle, MoreHorizontal, Send, Play, Volume2, VolumeX } from 'lucide-react'
 import { Button } from './ui/button'
 import { FaHeart, FaRegHeart } from "react-icons/fa";
 import CommentDialog from './CommentDialog'
@@ -21,6 +21,9 @@ const Post = ({ post }) => {
     const [liked, setLiked] = useState(post.likes.includes(user?._id) || false);
     const [postLike, setPostLike] = useState(post.likes.length);
     const [comment, setComment] = useState(post.comments);
+    const [isPlaying, setIsPlaying] = useState(false);
+    const [isMuted, setIsMuted] = useState(true);
+    const videoRef = useRef(null);
     const dispatch = useDispatch();
 
     const changeEventHandler = (e) => {
@@ -98,15 +101,15 @@ const Post = ({ post }) => {
 
     const bookmarkHandler = async () => {
         try {
-            const res = await axios.get(`${API_URL}/api/v1/post/${post?._id}/bookmark`, {withCredentials:true});
-            if(res.data.success){
+            const res = await axios.get(`${API_URL}/api/v1/post/${post?._id}/bookmark`, { withCredentials: true });
+            if (res.data.success) {
                 toast.success(res.data.message);
             }
         } catch (error) {
             console.log(error);
         }
     }
-    
+
     return (
         <div className='my-8 w-full max-w-sm mx-auto'>
             <div className='flex items-center justify-between'>
@@ -117,7 +120,7 @@ const Post = ({ post }) => {
                     </Avatar>
                     <div className='flex items-center gap-3'>
                         <h1>{post.author?.username}</h1>
-                       {user?._id === post.author._id &&  <Badge variant="secondary">Author</Badge>}
+                        {user?._id === post.author._id && <Badge variant="secondary">Author</Badge>}
                     </div>
                 </div>
                 <Dialog>
@@ -126,9 +129,9 @@ const Post = ({ post }) => {
                     </DialogTrigger>
                     <DialogContent className="flex flex-col items-center text-sm text-center">
                         {
-                        post?.author?._id !== user?._id && <Button variant='ghost' className="cursor-pointer w-fit text-[#ED4956] font-bold">Unfollow</Button>
+                            post?.author?._id !== user?._id && <Button variant='ghost' className="cursor-pointer w-fit text-[#ED4956] font-bold">Unfollow</Button>
                         }
-                        
+
                         <Button variant='ghost' className="cursor-pointer w-fit">Add to favorites</Button>
                         {
                             user && user?._id === post?.author._id && <Button onClick={deletePostHandler} variant='ghost' className="cursor-pointer w-fit">Delete</Button>
@@ -136,11 +139,57 @@ const Post = ({ post }) => {
                     </DialogContent>
                 </Dialog>
             </div>
-            <img
-                className='rounded-sm my-2 w-full aspect-square object-cover'
-                src={post.image}
-                alt="post_img"
-            />
+
+            {/* Media - Image or Video */}
+            {post.mediaType === 'video' ? (
+                <div
+                    className='relative my-2 w-full aspect-square bg-black rounded-sm cursor-pointer'
+                    onClick={() => {
+                        if (videoRef.current) {
+                            if (isPlaying) {
+                                videoRef.current.pause();
+                            } else {
+                                videoRef.current.play();
+                            }
+                            setIsPlaying(!isPlaying);
+                        }
+                    }}
+                >
+                    <video
+                        ref={videoRef}
+                        src={post.image}
+                        className='w-full h-full object-cover rounded-sm'
+                        loop
+                        muted={isMuted}
+                        playsInline
+                    />
+                    {!isPlaying && (
+                        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                            <div className="bg-black/40 rounded-full p-3">
+                                <Play className="w-8 h-8 text-white" fill="white" />
+                            </div>
+                        </div>
+                    )}
+                    <button
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            if (videoRef.current) {
+                                videoRef.current.muted = !isMuted;
+                                setIsMuted(!isMuted);
+                            }
+                        }}
+                        className="absolute bottom-3 right-3 bg-black/50 rounded-full p-2 hover:bg-black/70 transition-colors"
+                    >
+                        {isMuted ? <VolumeX className="w-4 h-4 text-white" /> : <Volume2 className="w-4 h-4 text-white" />}
+                    </button>
+                </div>
+            ) : (
+                <img
+                    className='rounded-sm my-2 w-full aspect-square object-cover'
+                    src={post.image}
+                    alt="post_img"
+                />
+            )}
 
             <div className='flex items-center justify-between my-2'>
                 <div className='flex items-center gap-3'>

@@ -7,6 +7,8 @@ import connectDB from "./config/db.js";
 import userRoute from "./routes/user.route.js";
 import postRoute from "./routes/post.route.js";
 import messageRoute from "./routes/message.route.js";
+import reelRoute from "./routes/reel.route.js";
+import storyRoute from "./routes/story.route.js";
 import { app, server } from "./socket/socket.js";
 import path from "path";
 
@@ -32,11 +34,13 @@ app.use(cors(corsOptions));
 app.use("/api/v1/user", userRoute);
 app.use("/api/v1/post", postRoute);
 app.use("/api/v1/message", messageRoute);
+app.use("/api/v1/reel", reelRoute);
+app.use("/api/v1/story", storyRoute);
 
 // Health Check Route
 app.get('/api/health', (req, res) => {
-    res.status(200).json({ 
-        status: 'OK', 
+    res.status(200).json({
+        status: 'OK',
         message: 'Server is running',
         timestamp: new Date().toISOString()
     });
@@ -45,7 +49,7 @@ app.get('/api/health', (req, res) => {
 // Serve static files in production
 if (process.env.NODE_ENV === 'production') {
     app.use(express.static(path.join(__dirname, "/frontend/dist")));
-    
+
     app.get("*", (req, res) => {
         res.sendFile(path.resolve(__dirname, "frontend", "dist", "index.html"));
     });

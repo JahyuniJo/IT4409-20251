@@ -37,7 +37,7 @@ const RightSidebar = () => {
         },
         withCredentials: true
       });
-      
+
       if (res.data.success) {
         // Update local state
         if (followingUsers.includes(userId)) {
@@ -62,7 +62,7 @@ const RightSidebar = () => {
       <div className='flex items-center gap-3 mb-8'>
         <Link to={`/profile/${user._id}`}>
           <Avatar className='w-14 h-14 cursor-pointer hover:opacity-90 transition-opacity'>
-            <AvatarImage src={user.profilePicture || 'https://i.pravatar.cc/40'} />
+            <AvatarImage src={user.profilePicture || ''} />
             <AvatarFallback>{user.username?.[0]?.toUpperCase() || 'U'}</AvatarFallback>
           </Avatar>
         </Link>
@@ -74,8 +74,8 @@ const RightSidebar = () => {
           </Link>
           <p className='text-gray-500 text-sm truncate'>{user.bio || 'No bio yet'}</p>
         </div>
-        <Button 
-          variant="ghost" 
+        <Button
+          variant="ghost"
           onClick={handleLogout}
           className='text-blue-500 font-semibold text-sm hover:text-blue-600 hover:bg-transparent'
         >
@@ -99,7 +99,7 @@ const RightSidebar = () => {
               <div key={suggestedUser._id} className='flex items-center gap-3'>
                 <Link to={`/profile/${suggestedUser._id}`}>
                   <Avatar className='w-11 h-11 cursor-pointer hover:opacity-90 transition-opacity'>
-                    <AvatarImage src={suggestedUser.profilePicture || 'https://i.pravatar.cc/40'} />
+                    <AvatarImage src={suggestedUser.profilePicture || ''} />
                     <AvatarFallback>{suggestedUser.username?.[0]?.toUpperCase() || 'U'}</AvatarFallback>
                   </Avatar>
                 </Link>
@@ -113,14 +113,13 @@ const RightSidebar = () => {
                     {suggestedUser.bio || 'No bio'}
                   </p>
                 </div>
-                <Button 
+                <Button
                   variant="ghost"
                   onClick={() => handleFollow(suggestedUser._id)}
-                  className={`font-semibold text-xs p-0 h-auto hover:bg-transparent transition-colors ${
-                    followingUsers.includes(suggestedUser._id) 
-                      ? 'text-gray-700 hover:text-gray-900' 
+                  className={`font-semibold text-xs p-0 h-auto hover:bg-transparent transition-colors ${followingUsers.includes(suggestedUser._id)
+                      ? 'text-gray-700 hover:text-gray-900'
                       : 'text-blue-500 hover:text-blue-600'
-                  }`}
+                    }`}
                 >
                   {followingUsers.includes(suggestedUser._id) ? 'Following' : 'Follow'}
                 </Button>

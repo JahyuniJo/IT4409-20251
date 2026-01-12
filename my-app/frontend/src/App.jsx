@@ -6,6 +6,8 @@ import Login from './components/Login'
 import MainLayout from './components/MainLayout'
 import Profile from './components/Profile'
 import Signup from './components/Signup'
+import Reels from './components/Reels'
+import Explore from './components/Explore'
 import ProtectedRoutes from './components/ProtectedRoutes'
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 import { io } from "socket.io-client";
@@ -40,6 +42,14 @@ const browserRouter = createBrowserRouter([
       {
         path: '/chat',
         element: <ChatPage />
+      },
+      {
+        path: '/reels',
+        element: <Reels />
+      },
+      {
+        path: '/explore',
+        element: <Explore />
       },
     ]
   },

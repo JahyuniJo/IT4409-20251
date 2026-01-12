@@ -58,28 +58,28 @@ const Login = () => {
     }, [])
 
     return (
-        <div className="min-h-screen w-full flex items-center justify-center bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 p-4">
+        <div className="min-h-screen w-full flex items-center justify-center bg-gradient-to-br from-gray-900 via-purple-900 to-gray-900 p-4">
             {/* Background decorative elements */}
             <div className="absolute inset-0 overflow-hidden pointer-events-none">
-                <div className="absolute -top-40 -right-40 w-80 h-80 bg-purple-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob"></div>
-                <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-blue-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000"></div>
-                <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-pink-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-4000"></div>
+                <div className="absolute -top-40 -right-40 w-80 h-80 bg-purple-600 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-blob"></div>
+                <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-blue-600 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-blob animation-delay-2000"></div>
+                <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-pink-600 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-blob animation-delay-4000"></div>
             </div>
 
             {/* Login Card */}
             <div className="relative w-full max-w-md">
-                <div className="bg-white/80 backdrop-blur-lg rounded-2xl shadow-2xl p-8 border border-white/20">
+                <div className="bg-gray-800/80 backdrop-blur-lg rounded-2xl shadow-2xl p-8 border border-gray-700/50">
                     {/* Logo & Header */}
                     <div className="text-center mb-8">
-                        <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-blue-600 to-purple-600 rounded-2xl mb-4 shadow-lg">
+                        <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-purple-500 to-pink-500 rounded-2xl mb-4 shadow-lg">
                             <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                             </svg>
                         </div>
-                        <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-2">
+                        <h1 className="text-3xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent mb-2">
                             Welcome Back
                         </h1>
-                        <p className="text-gray-600 text-sm">
+                        <p className="text-gray-400 text-sm">
                             Login to see photos & videos from your friends
                         </p>
                     </div>
@@ -88,8 +88,8 @@ const Login = () => {
                     <form onSubmit={signupHandler} className="space-y-5">
                         {/* Email Input */}
                         <div className="space-y-2">
-                            <label className="text-sm font-semibold text-gray-700 flex items-center gap-2">
-                                <Mail className="w-4 h-4 text-gray-500" />
+                            <label className="text-sm font-semibold text-gray-300 flex items-center gap-2">
+                                <Mail className="w-4 h-4 text-gray-400" />
                                 Email
                             </label>
                             <Input
@@ -98,15 +98,15 @@ const Login = () => {
                                 value={input.email}
                                 onChange={changeEventHandler}
                                 placeholder="Enter your email"
-                                className="focus-visible:ring-transparent"
+                                className="bg-gray-700/50 border-gray-600 text-white placeholder:text-gray-500 focus-visible:ring-purple-500 focus-visible:border-purple-500"
                                 required
                             />
                         </div>
 
                         {/* Password Input */}
                         <div className="space-y-2">
-                            <label className="text-sm font-semibold text-gray-700 flex items-center gap-2">
-                                <Lock className="w-4 h-4 text-gray-500" />
+                            <label className="text-sm font-semibold text-gray-300 flex items-center gap-2">
+                                <Lock className="w-4 h-4 text-gray-400" />
                                 Password
                             </label>
                             <Input
@@ -115,13 +115,17 @@ const Login = () => {
                                 value={input.password}
                                 onChange={changeEventHandler}
                                 placeholder="Enter your password"
-                                className="focus-visible:ring-transparent"
+                                className="bg-gray-700/50 border-gray-600 text-white placeholder:text-gray-500 focus-visible:ring-purple-500 focus-visible:border-purple-500"
                                 required
                             />
                         </div>
 
                         {/* Submit Button */}
-                        <Button type="submit" disabled={loading} className="mt-6 w-full">
+                        <Button
+                            type="submit"
+                            disabled={loading}
+                            className="mt-6 w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-semibold"
+                        >
                             {loading ? (
                                 <span className="flex items-center justify-center gap-2">
                                     <Loader2 className="w-5 h-5 animate-spin" />
@@ -134,9 +138,9 @@ const Login = () => {
                     </form>
 
                     {/* Signup Link */}
-                    <p className="text-center text-sm text-gray-600 mt-6">
+                    <p className="text-center text-sm text-gray-400 mt-6">
                         Do not have an account?{' '}
-                        <Link to="/signup" className="font-semibold text-blue-600 hover:text-blue-700 transition-colors">
+                        <Link to="/signup" className="font-semibold text-purple-400 hover:text-purple-300 transition-colors">
                             Sign up
                         </Link>
                     </p>
@@ -144,9 +148,9 @@ const Login = () => {
                     {/* Terms */}
                     <p className="text-xs text-center text-gray-500 mt-4">
                         By continuing, you agree to our{' '}
-                        <Link to="/terms" className="text-blue-600 hover:underline">Terms</Link>
+                        <Link to="/terms" className="text-purple-400 hover:underline">Terms</Link>
                         {' '}and{' '}
-                        <Link to="/privacy" className="text-blue-600 hover:underline">Privacy Policy</Link>
+                        <Link to="/privacy" className="text-purple-400 hover:underline">Privacy Policy</Link>
                     </p>
                 </div>
             </div>
