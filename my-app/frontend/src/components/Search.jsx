@@ -7,7 +7,7 @@ import { FiSearch } from "react-icons/fi";
 // Ảnh avatar mặc định phòng trường hợp user không có ảnh hoặc ảnh lỗi
 const DEFAULT_AVATAR = "https://cdn-icons-png.flaticon.com/512/149/149071.png";
 
-function Search() {
+function Search({onClose}) {
   const navigate = useNavigate();
 
   // --- STATE QUẢN LÝ DỮ LIỆU ---
@@ -33,7 +33,7 @@ function Search() {
 
         // Gọi API Backend
         const res = await axios.get(
-          `${serverUrl}/api/user/search?keyWord=${input}`,
+          `${serverUrl}/api/v1/user/search?q=${input}`,
           { withCredentials: true } // Quan trọng: Gửi kèm cookie/session nếu có
         );
 
@@ -119,7 +119,10 @@ function Search() {
               className="w-full max-w-[600px] h-[80px] rounded-2xl bg-neutral-800/50 flex items-center gap-5 px-5 cursor-pointer 
                           border border-neutral-800 hover:border-neutral-600 hover:bg-neutral-800
                           transition-all duration-300 group"
-              onClick={() => navigate(`/profile/${user._id}`)} // Chuyển trang sang profile user đó
+              onClick={() => {
+                navigate(`/profile/${user._id}`); 
+                onClose();
+              }} // Chuyển trang sang profile user đó
             >
               {/* Avatar Container */}
               <div className="relative w-14 h-14 min-w-[56px]">

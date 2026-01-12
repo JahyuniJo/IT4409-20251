@@ -167,7 +167,7 @@
 
 // export const editProfile = async (req, res) => {
 //     try {
-//         const userId = req.id;
+//         const userId = userId;
 //         const { bio, gender } = req.body;
 //         const profilePicture = req.file;
 //         let cloudResponse;
@@ -331,21 +331,29 @@ export const register = async (req, res) => {
         const { username, email, password } = req.body;
 
         if (!username || !email || !password) {
-            return res.status(401).json({
-                message: "Something is missing, please check!",
+            return res.status(400).json({
                 success: false,
+                message: "Vui lòng nhập đầy đủ thông tin"
             });
         }
 
-        const user = await User.findOne({ email });
-        if (user) {
-            return res.status(401).json({
-                message: "Try different email",
+        // 🔎 Check cả email & username
+        const existedUser = await User.findOne({
+            $or: [{ email }, { username }]
+        });
+
+        if (existedUser) {
+            return res.status(409).json({
                 success: false,
+                message:
+                    existedUser.email === email
+                        ? "Email đã được sử dụng"
+                        : "Username đã tồn tại"
             });
         }
 
         const hashedPassword = await bcrypt.hash(password, 10);
+
         await User.create({
             username,
             email,
@@ -353,17 +361,33 @@ export const register = async (req, res) => {
         });
 
         return res.status(201).json({
-            message: "Account created successfully.",
             success: true,
+            message: "Đăng ký thành công"
         });
+
     } catch (error) {
-        console.log(error);
+        console.error(error);
+
+        // 🔥 BẮT DUPLICATE KEY TỪ MONGO (CHỐT CHẶN CUỐI)
+        if (error.code === 11000) {
+            const field = Object.keys(error.keyPattern)[0];
+
+            return res.status(409).json({
+                success: false,
+                message:
+                    field === "email"
+                        ? "Email đã tồn tại"
+                        : "Username đã tồn tại"
+            });
+        }
+
         return res.status(500).json({
-            message: "Internal server error",
-            success: false
+            success: false,
+            message: "Internal server error"
         });
     }
-}
+};
+
 
 export const login = async (req, res) => {
     try {
@@ -597,33 +621,42 @@ export const editProfile = async (req, res) => {
         const profilePicture = req.file;
         let cloudResponse;
 
+        // Validate gender
+        const allowedGenders = ["male", "female", "custom"];
+        if (gender && !allowedGenders.includes(gender)) {
+            return res.status(400).json({
+                message: "Invalid gender value",
+                success: false
+            });
+        }
+
         if (profilePicture) {
             const fileUri = getDataUri(profilePicture);
             cloudResponse = await cloudinary.uploader.upload(fileUri);
         }
 
-        const user = await User.findById(userId).select('-password');
+        const user = await User.findById(userId).select("-password");
         if (!user) {
             return res.status(404).json({
-                message: 'User not found.',
+                message: "User not found.",
                 success: false
             });
         }
 
-        if (bio) user.bio = bio;
-        if (gender) user.gender = gender;
+        if (bio !== undefined) user.bio = bio;
+        if (gender !== undefined) user.gender = gender;
         if (profilePicture) user.profilePicture = cloudResponse.secure_url;
 
         await user.save();
 
         return res.status(200).json({
-            message: 'Profile updated.',
+            message: "Profile updated.",
             success: true,
             user
         });
 
     } catch (error) {
-        console.log(error);
+        console.error(error);
         return res.status(500).json({
             message: "Internal server error",
             success: false
@@ -633,7 +666,8 @@ export const editProfile = async (req, res) => {
 
 export const getSuggestedUsers = async (req, res) => {
     try {
-        const currentUser = await User.findById(req.id).select('following');
+        const userId = req.userId;
+        const currentUser = await User.findById(userId).select('following');
 
         if (!currentUser) {
             return res.status(404).json({
@@ -644,7 +678,7 @@ export const getSuggestedUsers = async (req, res) => {
 
         const suggestedUsers = await User.find({
             _id: {
-                $nin: [...currentUser.following, req.id]
+                $nin: [...currentUser.following, userId]
             }
         })
             .select("-password")
@@ -673,24 +707,47 @@ export const getSuggestedUsers = async (req, res) => {
 
 export const getSearchedUsers = async (req, res) => {
     try {
-        const query = req.query.q;
+        const currentUserId = req.userId;
 
-        const searchedUsers = await User.find({
-            username: { $regex: query, $options: 'i' }
-        }).select("-password");
+        const keyword = req.query.q?.trim();
+
+        // 1. Không có keyword → trả mảng rỗng
+        if (!keyword) {
+            return res.status(200).json({
+                success: true,
+                users: []
+            });
+        }
+
+        // 2. Regex tìm kiếm (không phân biệt hoa thường)
+        const searchRegex = new RegExp(keyword, "i");
+
+        // 3. Query
+        const users = await User.find({
+            _id: { $ne: currentUserId }, // ⬅️ loại chính mình
+            $or: [
+                { username: searchRegex },
+                { fullname: searchRegex }
+            ]
+        })
+            .select("_id username fullname profilePicture")
+            .limit(10);
 
         return res.status(200).json({
             success: true,
-            users: searchedUsers
+            users
         });
+
     } catch (error) {
-        console.log(error);
+        console.error("Search error:", error);
         return res.status(500).json({
-            message: "Internal server error",
-            success: false
+            success: false,
+            message: "Internal server error"
         });
     }
 };
+
+
 
 export const followOrUnfollow = async (req, res) => {
     try {

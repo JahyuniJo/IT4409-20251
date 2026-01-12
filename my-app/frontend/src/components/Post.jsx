@@ -187,9 +187,6 @@ const Post = ({ post }) => {
                             </Button>
                         )}
 
-                        <Button variant="ghost" className="cursor-pointer w-full text-white border-b border-zinc-800 rounded-none h-12">
-                            Add to favorites
-                        </Button>
                         {user?._id === post.author?._id && (
                             <Button onClick={deletePostHandler} variant="ghost" className="cursor-pointer w-full text-[#ED4956] font-bold border-b border-zinc-800 rounded-none h-12">
                                 Delete

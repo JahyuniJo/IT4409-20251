@@ -87,9 +87,39 @@ const EditProfile = () => {
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium">Giới tính</label>
-              <Input value={gender} onChange={(e) => setGender(e.target.value)} />
+              <label className="text-sm font-medium" style={{ color: "var(--text-primary)" }}>
+                Giới tính
+              </label>
+
+              <div className="grid grid-cols-3 gap-3">
+                {[
+                  { value: "male", label: "Nam" },
+                  { value: "female", label: "Nữ" },
+                  { value: "custom", label: "Tùy chọn" },
+                ].map((item) => (
+                  <button
+                    type="button"
+                    key={item.value}
+                    onClick={() => setGender(item.value)}
+                    className={`px-4 py-2 rounded-lg border text-sm font-medium transition-all
+          ${gender === item.value
+                        ? "border-blue-500 bg-blue-500/10 text-blue-600"
+                        : "border-gray-300 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-800"
+                      }`}
+                  >
+                    {item.label}
+                  </button>
+                ))}
+              </div>
+
+              {gender === "custom" && (
+                <p className="text-xs mt-1" style={{ color: "var(--text-muted)" }}>
+                  Bạn có thể chọn cách hiển thị giới tính theo ý muốn
+                </p>
+              )}
             </div>
+
+
 
             <Button className="w-full" disabled={loading}>
               {loading ? 'Đang lưu...' : 'Lưu thay đổi'}

@@ -18,27 +18,33 @@ body {
   left: 0;
   top: 0;
   width: 240px;
-  height: 100dvh; /* dynamic viewport height: fixes taskbar/dock overlap */
+  height: 100dvh;
+  /* dynamic viewport height: fixes taskbar/dock overlap */
   background-color: var(--panel);
   border-right: 1px solid rgba(255, 255, 255, 0.08);
   display: flex;
   flex-direction: column;
   padding: 16px 0;
-  overflow-y: auto; /* allow scroll if window smaller */
-  scrollbar-width: thin; /* firefox scroll */
+  overflow-y: auto;
+  /* allow scroll if window smaller */
+  scrollbar-width: thin;
+  /* firefox scroll */
 }
 
 /* optional: hide scrollbar look for Chrome/Edge */
 .sidebar::-webkit-scrollbar {
   width: 6px;
 }
+
 .sidebar::-webkit-scrollbar-thumb {
   background-color: rgba(255, 255, 255, 0.1);
   border-radius: 4px;
 }
+
 .sidebar::-webkit-scrollbar-thumb:hover {
   background-color: rgba(255, 255, 255, 0.25);
 }
+
 * {
   scroll-behavior: smooth;
 }
@@ -80,6 +86,8 @@ body {
   filter: brightness(0) invert(1);
   transition: opacity 0.3s ease;
 }
+
+
 .instagram-logo:hover {
   opacity: 0.85;
 }
@@ -210,6 +218,7 @@ main {
     padding: 12px;
     width: auto;
   }
+
   .sidebar-item span {
     display: none;
   }
@@ -233,7 +242,7 @@ main {
   background: #262626;
   border-radius: 16px;
   padding: 8px;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
   z-index: 50;
 }
 
@@ -273,4 +282,37 @@ input[type="password"]::-webkit-credentials-auto-fill-button {
   visibility: hidden;
   position: absolute;
   right: 0;
+}
+
+.search-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  z-index: 40;
+}
+
+/* Panel search */
+.search-panel {
+  position: fixed;
+  top: 0;
+  left: 72px;
+  /* đúng chiều rộng sidebar icon */
+  width: 400px;
+  height: 100vh;
+  background: #0f1115;
+  border-right: 1px solid rgba(255, 255, 255, 0.08);
+  animation: slideIn 0.25s ease-out;
+}
+
+/* Animation mượt */
+@keyframes slideIn {
+  from {
+    transform: translateX(-20px);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
 }

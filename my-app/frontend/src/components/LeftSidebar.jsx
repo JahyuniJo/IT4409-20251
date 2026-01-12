@@ -5,9 +5,10 @@ import { setAuthUser } from '@/redux/authSlice';
 import axios from 'axios';
 import { toast } from 'sonner';
 import SwitchAccountModal from "./SwitchAccountModal";
+import Search from "./Search";
 import {
   Home,
-  Search,
+  Search as SearchIcon,
   Compass,
   Send,
   Heart,
@@ -15,9 +16,6 @@ import {
   MoreHorizontal,
   Settings,
   Bookmark,
-  Activity,
-  Moon,
-  AlertCircle,
   LogOut,
   Repeat
 } from "lucide-react";
@@ -47,6 +45,8 @@ export default function LeftSidebar() {
   const [open, setOpen] = useState(false);
   const [showMore, setShowMore] = useState(false);
   const [showSwitchAccount, setShowSwitchAccount] = useState(false);
+  const [openSearch, setOpenSearch] = useState(false);
+
 
   const isActive = (path) => location.pathname === path;
   // Hàm đăng xuất
@@ -68,6 +68,7 @@ export default function LeftSidebar() {
   const unreadNotifications = likeNotification.length;
 
 
+
   // Thêm logic đóng menu khi nhấp ra ngoài
   useEffect(() => {
     const handleClickOutside = () => {
@@ -84,6 +85,9 @@ export default function LeftSidebar() {
     window.addEventListener("click", handler);
     return () => window.removeEventListener("click", handler);
   }, [showMore]);
+
+
+
 
   return (
     <>
@@ -106,12 +110,27 @@ export default function LeftSidebar() {
           </Link>
 
           <button
-            onClick={() => handleComingSoon("Tìm kiếm")}
+            onClick={() => setOpenSearch(true)}
             className="sidebar-item"
           >
-            <Search size={24} />
+            <SearchIcon size={24} />
             <span>Tìm kiếm</span>
           </button>
+          {openSearch && (
+            <div
+              className="search-overlay"
+              onClick={() => setOpenSearch(false)}
+            >
+              <div
+                className="search-panel"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <Search onClose={() => setOpenSearch(false)} />
+              </div>
+            </div>
+          )}
+
+
 
           <button
             onClick={() => handleComingSoon("Khám phá")}
@@ -180,8 +199,15 @@ export default function LeftSidebar() {
 
           {showMore && (
             <div className="more-menu" onClick={(e) => e.stopPropagation()}>
-              <MenuItem icon={<Settings size={18} />} text="Cài đặt" />
-              <MenuItem icon={<Activity size={18} />} text="Hoạt động của bạn" />
+              <MenuItem
+                icon={<Settings size={18} />}
+                text="Cài đặt"
+                onClick={() => {
+                  setShowMore(false);
+                  navigate("/account/edit");
+                }}
+              />
+
               <MenuItem
                 icon={<Bookmark size={18} />}
                 text="Đã lưu"
@@ -190,8 +216,6 @@ export default function LeftSidebar() {
                   navigate(`/profile/${user?._id}?tab=saved`);
                 }}
               />
-              <MenuItem icon={<Moon size={18} />} text="Chuyển chế độ" />
-              <MenuItem icon={<AlertCircle size={18} />} text="Báo cáo sự cố" />
 
               <div className="menu-divider" />
 
