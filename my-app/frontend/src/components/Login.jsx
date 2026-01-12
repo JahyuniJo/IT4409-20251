@@ -137,6 +137,16 @@ const Login = () => {
                             </div>
                         </div>
 
+                        <div className="text-right">
+                            <Link
+                                to="/forgot-password"
+                                className="text-sm text-blue-600 hover:text-blue-700 font-medium"
+                            >
+                                Quên mật khẩu?
+                            </Link>
+                        </div>
+
+
 
                         {/* Submit Button */}
                         <Button type="submit" disabled={loading} className="mt-6 w-full">

@@ -43,7 +43,13 @@ const userSchema = new mongoose.Schema({
     bookmarks: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Post'
-    }]
+    }],
+    resetPasswordOTP: {
+        type: String
+    },
+    resetPasswordOTPExpire: {
+        type: Date
+    }
 }, { timestamps: true });
 
 export const User = mongoose.model('User', userSchema);

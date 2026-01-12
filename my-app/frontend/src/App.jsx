@@ -13,6 +13,8 @@ import { io } from 'socket.io-client'
 import { useDispatch, useSelector } from 'react-redux'
 import { setOnlineUsers } from './redux/chatSlice'
 import { setLikeNotification } from './redux/rtnSlice'
+import ForgotPassword from './components/ForgotPassword'
+import ResetPassword from './components/ResetPassword'
 
 const SOCKET_URL = import.meta.env.VITE_SOCKET_URL || 'http://localhost:8000'
 
@@ -34,6 +36,8 @@ const browserRouter = createBrowserRouter([
   },
   { path: '/login', element: <Login /> },
   { path: '/signup', element: <Signup /> },
+  { path: '/forgot-password', element: <ForgotPassword /> },
+  { path: '/reset-password-otp', element: <ResetPassword /> },
 ])
 
 function App() {
