@@ -1,30 +1,30 @@
-import nodemailer from "nodemailer";
+import axios from "axios";
 
-/**
- * @param {Object} options
- * @param {string} options.to
- * @param {string} options.subject
- * @param {string} options.html
- */
-const sendEmail = async ({ to, subject, html }) => {
-    const transporter = nodemailer.createTransport({
-        host: process.env.SMTP_HOST,
-        port: process.env.SMTP_PORT,
-        secure: process.env.SMTP_PORT == 465, // true nếu dùng 465
-        auth: {
-            user: process.env.SMTP_EMAIL,
-            pass: process.env.SMTP_PASSWORD,
-        },
-    });
+const sendEmail = async ({ to, otp }) => {
+  const html = `
+    <div style="font-family:Arial;padding:20px">
+      <h3>DH Story – Đặt lại mật khẩu</h3>
+      <p>Mã OTP của bạn:</p>
+      <h1 style="letter-spacing:6px">${otp}</h1>
+      <p>Mã có hiệu lực trong 5 phút.</p>
+    </div>
+  `;
 
-    const mailOptions = {
-        from: `"${process.env.SMTP_FROM_NAME}" <${process.env.SMTP_EMAIL}>`,
-        to,
-        subject,
-        html,
-    };
-
-    await transporter.sendMail(mailOptions);
+  await axios.post(
+    "https://api.brevo.com/v3/smtp/email",
+    {
+      sender: { name: "DH Story", email: "no-reply@dhstory.com" },
+      to: [{ email: to }],
+      subject: "Mã OTP đặt lại mật khẩu",
+      htmlContent: html
+    },
+    {
+      headers: {
+        "api-key": process.env.BREVO_API_KEY,
+        "Content-Type": "application/json"
+      }
+    }
+  );
 };
 
 export default sendEmail;

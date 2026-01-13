@@ -151,13 +151,9 @@ export const forgotPassword = async (req, res) => {
 
     await sendEmail({
         to: user.email,
-        subject: "Mã xác thực đặt lại mật khẩu",
-        html: `
-            <h2>Mã OTP của bạn</h2>
-            <h1 style="letter-spacing:4px">${otp}</h1>
-            <p>Mã có hiệu lực trong 5 phút.</p>
-        `
+        otp
     });
+
 
     res.json({
         success: true,
