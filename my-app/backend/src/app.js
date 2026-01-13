@@ -22,14 +22,20 @@ const __dirname = path.resolve();
 app.use(express.json());
 app.use(cookieParser());
 app.use(urlencoded({ extended: true }));
-
 // CORS Configuration
-const corsOptions = {
-    origin: process.env.URL || 'http://localhost:3000',
-    credentials: true,
-    optionsSuccessStatus: 200
-};
-app.use(cors(corsOptions));
+const allowedOrigins = [
+  process.env.FRONTEND_URL
+];
+app.use(cors({
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
+  credentials: true
+}));
 
 // API Routes
 app.use("/api/v1/user", userRoute);
@@ -63,15 +69,4 @@ server.listen(PORT, () => {
     console.log(` Server is running on port ${PORT}`);
     console.log(` Environment: ${process.env.NODE_ENV || 'development'}`);
     console.log(` CORS enabled for: ${process.env.URL || 'http://localhost:5173'}`);
-});
-
-// Error handling for uncaught exceptions
-process.on('uncaughtException', (error) => {
-    console.error(' Uncaught Exception:', error);
-    process.exit(1);
-});
-
-process.on('unhandledRejection', (error) => {
-    console.error(' Unhandled Rejection:', error);
-    process.exit(1);
 });
