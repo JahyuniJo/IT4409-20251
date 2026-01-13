@@ -194,22 +194,6 @@ export default function LeftSidebar() {
             <Send size={24} />
             <span>Tin nhắn</span>
           </Link>
-
-          <button
-            onClick={() => handleComingSoon("Thông báo")}
-            className="sidebar-item relative"
-          >
-            <div className="relative">
-              <Heart size={24} />
-              {unreadNotifications > 0 && (
-                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center font-semibold">
-                  {unreadNotifications}
-                </span>
-              )}
-            </div>
-            <span>Thông báo</span>
-          </button>
-
           <button onClick={() => setOpen(true)} className="sidebar-item">
             <PlusSquare size={24} />
             <span>Tạo</span>

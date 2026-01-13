@@ -48,17 +48,12 @@ const userSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Reel'
     }],
-<<<<<<< HEAD
     resetPasswordOTP: {
         type: String
     },
     resetPasswordOTPExpire: {
         type: Date
     }
-=======
-    resetPasswordToken: String,
-    resetPasswordExpire: Date
->>>>>>> ea4ed2a9326ecfed096a4b2ccc21f169d17da622
 }, { timestamps: true });
 
 export const User = mongoose.model('User', userSchema);
