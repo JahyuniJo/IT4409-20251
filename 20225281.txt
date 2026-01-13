@@ -55,3 +55,51 @@ Lê Huy Dũng: giao diện trang chủ, bài đăng, Reel, đăng tin và xử l
 Nguyễn Trung Đức: trang cá nhân, tìm kiếm, chat, tương tác, responsive, đăng nhập/đăng ký, thanh điều hướng.
 
 Hoàng Diệu: xử lý logic tìm kiếm, CSDL, xác thực và bảo mật, API, đăng bài và logic Reel.
+3. Công nghệ sử dụng
+
+Hệ thống được xây dựng dựa trên các công nghệ hiện đại, phổ biến trong phát triển ứng dụng web, đảm bảo tính ổn định, hiệu năng và khả năng mở rộng trong tương lai.
+
+3.1. ReactJS (Frontend)
+
+ReactJS là thư viện JavaScript do Facebook phát triển, được sử dụng để xây dựng giao diện người dùng. ReactJS cho phép phát triển giao diện theo mô hình component, giúp dễ dàng tái sử dụng mã nguồn và bảo trì hệ thống. Với cơ chế Virtual DOM, ReactJS giúp tối ưu hiệu suất hiển thị và nâng cao trải nghiệm người dùng. Ngoài ra, ReactJS hỗ trợ tốt việc xây dựng ứng dụng Single Page Application (SPA), giúp giảm thời gian tải trang và tương tác mượt mà hơn.
+
+3.2. Node.js và ExpressJS (Backend)
+
+Node.js là môi trường chạy JavaScript phía máy chủ, cho phép xử lý các yêu cầu từ phía client một cách nhanh chóng và hiệu quả. ExpressJS là framework phổ biến trên nền Node.js, hỗ trợ xây dựng API theo mô hình RESTful, giúp quản lý routing, middleware và xử lý request/response một cách linh hoạt. Sự kết hợp giữa Node.js và ExpressJS giúp hệ thống backend hoạt động ổn định, dễ mở rộng và phù hợp với các ứng dụng web hiện đại.
+
+3.3. MongoDB (Database)
+
+MongoDB là hệ quản trị cơ sở dữ liệu NoSQL, lưu trữ dữ liệu dưới dạng document JSON linh hoạt. MongoDB phù hợp với các hệ thống có cấu trúc dữ liệu thay đổi thường xuyên, giúp giảm sự phụ thuộc vào schema cố định. Ngoài ra, MongoDB hỗ trợ khả năng mở rộng theo chiều ngang (scalability), đảm bảo hiệu suất khi lượng dữ liệu và người dùng tăng cao.
+
+3.4. Bảo mật
+
+Hệ thống được chú trọng về mặt bảo mật nhằm đảm bảo an toàn dữ liệu và thông tin người dùng. Các biện pháp bảo mật bao gồm mã hóa mật khẩu bằng thuật toán hash (bcrypt), xác thực và phân quyền người dùng thông qua JSON Web Token (JWT), kiểm soát truy cập API và hạn chế các tấn công phổ biến như SQL Injection, XSS và CSRF. Ngoài ra, hệ thống sử dụng HTTPS để mã hóa dữ liệu trong quá trình truyền tải.
+
+3.5. Deployment
+
+Ứng dụng được triển khai trên môi trường máy chủ hoặc nền tảng điện toán đám mây, đảm bảo khả năng hoạt động ổn định và truy cập liên tục. Frontend và backend được build và deploy độc lập, giúp dễ dàng quản lý và nâng cấp hệ thống. Quá trình deployment có thể kết hợp với các công cụ CI/CD nhằm tự động hóa việc kiểm thử và triển khai, giúp giảm thiểu lỗi và tiết kiệm thời gian phát triển.
+
+Nếu bạn muốn:
+
+✏️ Viết ngắn hơn nữa (nửa trang)
+
+📘 Viết theo văn phong luận văn chuẩn
+
+🧑‍💻 Bổ sung công nghệ cụ thể (JWT, Docker, Nginx, AWS, Vercel, v.v.)
+
+chỉ cần nói mình biết nhé 👍
+
+Ngắn hơn
+3. Công nghệ sử dụng
+
+Hệ thống sử dụng các công nghệ phổ biến trong phát triển web hiện đại, đảm bảo hiệu năng và dễ mở rộng.
+
+3.1 ReactJS (Frontend): Dùng để xây dựng giao diện theo mô hình component, hỗ trợ SPA giúp thao tác mượt và tối ưu hiển thị nhờ Virtual DOM.
+
+3.2 Node.js & ExpressJS (Backend): Xây dựng API RESTful, xử lý request/response nhanh, dễ tổ chức routing và mở rộng chức năng.
+
+3.3 MongoDB (Database): Cơ sở dữ liệu NoSQL dạng document (JSON), linh hoạt, phù hợp dữ liệu thay đổi và hỗ trợ mở rộng tốt.
+
+3.4 Bảo mật: Mã hóa mật khẩu (bcrypt), xác thực/ phân quyền bằng JWT, kiểm soát truy cập API và hạn chế các tấn công phổ biến (XSS, CSRF).
+
+3.5 Deployment: Triển khai tách frontend và backend trên server/cloud, có thể áp dụng CI/CD để tự động hóa build và deploy.
