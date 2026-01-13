@@ -16,17 +16,26 @@ const PORT = process.env.PORT || 8000;
 const __dirname = path.resolve();
 
 // Middlewares
-app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
-app.use(urlencoded({ extended: true }));
 
 // CORS Configuration
-const corsOptions = {
-    origin: process.env.URL || 'http://localhost:3000',
-    credentials: true,
-    optionsSuccessStatus: 200
-};
-app.use(cors(corsOptions));
+const allowedOrigins = [ process.env.URL ||
+  "http://localhost:5173",
+  process.env.FRONTEND_URL
+];
+
+app.use(cors({
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
+  credentials: true
+}));
+
 
 // API Routes
 app.use("/api/v1/user", userRoute);
@@ -42,30 +51,20 @@ app.get('/api/health', (req, res) => {
     });
 });
 
-// Serve static files in production
-if (process.env.NODE_ENV === 'production') {
-    app.use(express.static(path.join(__dirname, "/frontend/dist")));
+// // Serve static files in production
+// if (process.env.NODE_ENV === 'production') {
+//     app.use(express.static(path.join(__dirname, "/frontend/dist")));
     
-    app.get("*", (req, res) => {
-        res.sendFile(path.resolve(__dirname, "frontend", "dist", "index.html"));
-    });
-}
+//     app.get("*", (req, res) => {
+//         res.sendFile(path.resolve(__dirname, "frontend", "dist", "index.html"));
+//     });
+// }
 
 // Start Server
-server.listen(PORT, () => {
-    connectDB();
-    console.log(` Server is running on port ${PORT}`);
-    console.log(` Environment: ${process.env.NODE_ENV || 'development'}`);
+connectDB().then(() => {
+  server.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+     console.log(` Environment: ${process.env.NODE_ENV || 'development'}`);
     console.log(` CORS enabled for: ${process.env.URL || 'http://localhost:5173'}`);
-});
-
-// Error handling for uncaught exceptions
-process.on('uncaughtException', (error) => {
-    console.error(' Uncaught Exception:', error);
-    process.exit(1);
-});
-
-process.on('unhandledRejection', (error) => {
-    console.error(' Unhandled Rejection:', error);
-    process.exit(1);
+  });
 });

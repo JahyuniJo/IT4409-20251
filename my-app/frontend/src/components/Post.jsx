@@ -111,9 +111,13 @@ const Post = ({ post }) => {
             );
 
             if (res.data.success) {
+                const bookmarks = Array.isArray(user.bookmarks)
+                    ? user.bookmarks
+                    : [];
+
                 const updatedBookmarks = isBookmarked
-                    ? user.bookmarks.filter(id => id !== post._id)
-                    : [...user.bookmarks, post._id];
+                    ? bookmarks.filter(id => id !== post._id)
+                    : [...bookmarks, post._id];
 
                 dispatch(setAuthUser({
                     ...user,
@@ -126,6 +130,7 @@ const Post = ({ post }) => {
             console.log(error);
         }
     };
+
     const followOrUnfollowHandler = async () => {
         try {
             const res = await axios.post(
