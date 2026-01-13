@@ -9,6 +9,7 @@ import postRoute from "./routes/post.route.js";
 import messageRoute from "./routes/message.route.js";
 import reelRoute from "./routes/reel.route.js";
 import storyRoute from "./routes/story.route.js";
+import commentRoute from "./routes/comment.route.js";
 import { app, server } from "./socket/socket.js";
 import path from "path";
 
@@ -36,6 +37,7 @@ app.use("/api/v1/post", postRoute);
 app.use("/api/v1/message", messageRoute);
 app.use("/api/v1/reel", reelRoute);
 app.use("/api/v1/story", storyRoute);
+app.use("/api/v1/comment", commentRoute);
 
 // Health Check Route
 app.get('/api/health', (req, res) => {

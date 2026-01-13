@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react'
-import { Grid3X3, Bookmark, X, Film, ImagePlus, Loader2 } from 'lucide-react'
+import { Grid3X3, Bookmark, X, Film, ImagePlus, Loader2, Repeat } from 'lucide-react'
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar'
 import useGetUserProfile from '@/hooks/useGetUserProfile';
 import { useParams, useNavigate } from 'react-router-dom';
@@ -613,6 +613,13 @@ const Profile = () => {
                       className='rounded-sm w-full aspect-square object-cover'
                     />
                   )}
+                  {
+                    item.originalPost && (
+                      <div className="absolute top-2 left-2 bg-black/50 p-1 rounded-full">
+                        <Repeat className="w-4 h-4 text-white" />
+                      </div>
+                    )
+                  }
                   <div className='absolute inset-0 flex items-center justify-center bg-black bg-opacity-70 opacity-0 group-hover:opacity-100 transition-opacity duration-300'>
                     <div className='flex items-center text-white space-x-4'>
                       <button className='flex items-center gap-2 hover:text-gray-300'>

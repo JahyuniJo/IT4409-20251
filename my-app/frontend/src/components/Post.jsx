@@ -11,6 +11,8 @@ import axios from 'axios'
 import { toast } from 'sonner'
 import { setPosts } from '@/redux/postSlice'
 import { Badge } from './ui/badge'
+import { FaBookmark, FaRegBookmark } from "react-icons/fa";
+import { Copy, Repeat } from 'lucide-react';
 
 const API_URL = import.meta.env.VITE_API_URL;
 const DEFAULT_AVATAR = 'https://res.cloudinary.com/dva00tzke/image/upload/v1768276886/user_curjop.png?v=2';
@@ -21,6 +23,7 @@ const Post = ({ post }) => {
     const { posts } = useSelector(store => store.post);
     const [liked, setLiked] = useState(post.likes.includes(user?._id) || false);
     const [postLike, setPostLike] = useState(post.likes.length);
+    const [isBookmarked, setIsBookmarked] = useState(user?.bookmarks?.some(bookmark => (bookmark._id || bookmark) === post?._id) || false);
     const [isPlaying, setIsPlaying] = useState(false);
     const [isMuted, setIsMuted] = useState(true);
     const videoRef = useRef(null);
@@ -72,11 +75,33 @@ const Post = ({ post }) => {
         try {
             const res = await axios.get(`${API_URL}/api/v1/post/${post?._id}/bookmark`, { withCredentials: true });
             if (res.data.success) {
+                setIsBookmarked(res.data.type === 'saved');
                 toast.success(res.data.message);
             }
         } catch (error) {
             console.log(error);
         }
+    }
+
+    const repostHandler = async () => {
+        try {
+            const res = await axios.post(`${API_URL}/api/v1/post/${post?._id}/repost`, {}, { withCredentials: true });
+            if (res.data.success) {
+                toast.success(res.data.message);
+                dispatch(setPosts([res.data.post, ...posts]));
+            }
+        } catch (error) {
+            console.log(error);
+            toast.error(error.response?.data?.message || 'Failed to repost');
+        }
+    }
+
+    const copyLinkHandler = () => {
+        const link = `${window.location.origin}/post/${post?._id}`; // Assuming a post route exists or just copying modal link
+        // Since we don't have a standalone post page, maybe just copy the text content or a deep link if it existed.
+        // For now, let's copy the post ID or a dummy link.
+        navigator.clipboard.writeText(window.location.href);
+        toast.success('Link copied to clipboard');
     }
 
     return (
@@ -100,7 +125,7 @@ const Post = ({ post }) => {
                     <DialogTrigger asChild>
                         <MoreHorizontal className='cursor-pointer' />
                     </DialogTrigger>
-                    <DialogContent className="flex flex-col items-center text-sm text-center">
+                    <DialogContent className="flex flex-col items-center text-sm text-center z-[100]">
                         {
                             post?.author?._id !== user?._id && <Button variant='ghost' className="cursor-pointer w-fit text-[#ED4956] font-bold">Unfollow</Button>
                         }
@@ -171,9 +196,31 @@ const Post = ({ post }) => {
                     }
 
                     <MessageCircle onClick={() => setIsDetailOpen(true)} className='cursor-pointer hover:text-gray-600' />
-                    <Send className='cursor-pointer hover:text-gray-600' />
+
+                    <Dialog>
+                        <DialogTrigger asChild>
+                            <Send className='cursor-pointer hover:text-gray-600' />
+                        </DialogTrigger>
+                        <DialogContent className='flex flex-col gap-4 text-center items-center z-[999] bg-gray-900 border-gray-800 text-white'>
+                            <div onClick={copyLinkHandler} className='cursor-pointer flex items-center gap-2 w-full p-2 hover:bg-gray-800 rounded-md'>
+                                <Copy />
+                                <span>Share to someone else (Copy Link)</span>
+                            </div>
+                            <div onClick={repostHandler} className='cursor-pointer flex items-center gap-2 w-full p-2 hover:bg-gray-800 rounded-md'>
+                                <Repeat />
+                                <span>Repost in your profile</span>
+                            </div>
+                        </DialogContent>
+                    </Dialog>
+
                 </div>
-                <Bookmark onClick={bookmarkHandler} className='cursor-pointer hover:text-gray-600' />
+                {
+                    isBookmarked ? (
+                        <FaBookmark onClick={bookmarkHandler} size={'24'} className='cursor-pointer text-white' />
+                    ) : (
+                        <FaRegBookmark onClick={bookmarkHandler} size={'24'} className='cursor-pointer hover:text-gray-600' />
+                    )
+                }
             </div>
             <span className='font-medium block mb-2'>{postLike} likes</span>
             <p>

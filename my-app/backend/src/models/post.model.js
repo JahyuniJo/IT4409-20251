@@ -19,6 +19,10 @@ const postSchema = new mongoose.Schema({
         ref: 'User',
         required: true
     },
+    originalPost: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Post'
+    },
     likes: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User'
