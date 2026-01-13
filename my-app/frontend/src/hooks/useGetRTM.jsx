@@ -12,18 +12,28 @@ const useGetRTM = () => {
         if (!socket) return;
 
         const handleNewMessage = (newMessage) => {
+            // If the message is from the currently selected user, show it directly
+            if (selectedUser?._id === newMessage.senderId) {
+                dispatch(addIncomingMessage({
+                    message: newMessage,
+                    senderId: newMessage.senderId,
+                    selectedUserId: selectedUser?._id
+                }));
+                return;
+            }
+
             // Check if the message is from a user we follow
             const isFromFollowedUser = user?.following?.includes(newMessage.senderId);
 
             if (!isFromFollowedUser && newMessage.senderId !== user?._id) {
-                // Message from non-followed user - add to requests
+                // Message from non-followed user AND not currently chatting with them
                 dispatch(addMessageRequest({
                     senderId: newMessage.senderId,
                     message: newMessage,
                     createdAt: new Date().toISOString()
                 }));
             } else {
-                // Normal message - add with context of selected user
+                // Normal message from followed user (background update)
                 dispatch(addIncomingMessage({
                     message: newMessage,
                     senderId: newMessage.senderId,

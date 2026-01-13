@@ -20,13 +20,16 @@ const ChatPage = () => {
     const [showDetails, setShowDetails] = useState(false);
     const [selectedImage, setSelectedImage] = useState(null);
     const [imagePreview, setImagePreview] = useState(null);
-    const [activeTab, setActiveTab] = useState('messages'); // 'messages' or 'requests'
+    const [activeTab, setActiveTab] = useState('messages'); // 'messages', 'requests', or 'blocked'
     const [conversations, setConversations] = useState([]);
     const [loadingConversations, setLoadingConversations] = useState(true);
     const [messageRequestsList, setMessageRequestsList] = useState([]);
     const [loadingRequests, setLoadingRequests] = useState(false);
+    const [blockedUsersList, setBlockedUsersList] = useState([]);
+    const [loadingBlocked, setLoadingBlocked] = useState(false);
+    const [isSending, setIsSending] = useState(false);
     const { user, selectedUser } = useSelector(store => store.auth);
-    const { onlineUsers, messages, unreadCounts } = useSelector(store => store.chat);
+    const { onlineUsers, messages, unreadCounts, conversationStatus } = useSelector(store => store.chat);
     const { socket } = useSelector(store => store.socketio);
     const dispatch = useDispatch();
     const inputRef = useRef(null);
@@ -36,6 +39,7 @@ const ChatPage = () => {
     useEffect(() => {
         fetchConversations();
         fetchMessageRequests();
+        fetchBlockedUsers();
     }, []);
 
     // Listen for real-time new conversations
@@ -70,16 +74,20 @@ const ChatPage = () => {
     // If selectedUser is set (e.g. from Profile page) but not in conversations, add temporarily
     useEffect(() => {
         if (selectedUser && !loadingConversations) {
-            const exists = conversations.find(c => c.user?._id === selectedUser._id);
-            if (!exists) {
-                // Add as a temporary conversation entry so it shows in the list
-                setConversations(prev => [{
-                    user: selectedUser,
-                    lastMessage: '',
-                    lastMessageTime: new Date().toISOString(),
-                    conversationId: `temp-${selectedUser._id}`
-                }, ...prev]);
-            }
+            // Use functional update to ensure we have the latest conversations state
+            setConversations(prev => {
+                const exists = prev.find(c => c.user?._id === selectedUser._id);
+                if (!exists) {
+                    // Add as a temporary conversation entry at the top
+                    return [{
+                        user: selectedUser,
+                        lastMessage: '',
+                        lastMessageTime: new Date().toISOString(),
+                        conversationId: `temp-${selectedUser._id}`
+                    }, ...prev];
+                }
+                return prev;
+            });
         }
     }, [selectedUser, loadingConversations]);
 
@@ -90,7 +98,29 @@ const ChatPage = () => {
                 withCredentials: true
             });
             if (res.data.success) {
-                setConversations(res.data.conversations || []);
+                const fetchedConversations = res.data.conversations || [];
+                // Preserve selectedUser's temp conversation if not in fetched list
+                setConversations(prev => {
+                    // Check if selectedUser exists in fetched conversations
+                    const selectedUserInFetched = selectedUser &&
+                        fetchedConversations.find(c => c.user?._id === selectedUser._id);
+
+                    if (selectedUser && !selectedUserInFetched) {
+                        // Keep the temp conversation for selectedUser at the top
+                        const tempConv = prev.find(c => c.conversationId?.startsWith('temp-') && c.user?._id === selectedUser._id);
+                        if (tempConv) {
+                            return [tempConv, ...fetchedConversations];
+                        }
+                        // If no temp conv exists yet, create one
+                        return [{
+                            user: selectedUser,
+                            lastMessage: '',
+                            lastMessageTime: new Date().toISOString(),
+                            conversationId: `temp-${selectedUser._id}`
+                        }, ...fetchedConversations];
+                    }
+                    return fetchedConversations;
+                });
             }
         } catch (error) {
             console.log('Failed to fetch conversations:', error);
@@ -112,6 +142,43 @@ const ChatPage = () => {
             console.log('Failed to fetch message requests:', error);
         } finally {
             setLoadingRequests(false);
+        }
+    };
+
+    const fetchBlockedUsers = async () => {
+        try {
+            setLoadingBlocked(true);
+            const res = await axios.get(`${API_URL}/api/v1/message/blocked`, {
+                withCredentials: true
+            });
+            if (res.data.success) {
+                setBlockedUsersList(res.data.blocked || []);
+            }
+        } catch (error) {
+            console.log('Failed to fetch blocked users:', error);
+        } finally {
+            setLoadingBlocked(false);
+        }
+    };
+
+    const handleUnblock = async (blocked) => {
+        try {
+            await axios.post(`${API_URL}/api/v1/message/blocked/${blocked.conversationId}/unblock`, {}, {
+                withCredentials: true
+            });
+            // Remove from blocked list
+            setBlockedUsersList(prev => prev.filter(b => b.conversationId !== blocked.conversationId));
+            // Add to conversations list
+            setConversations(prev => [{
+                user: blocked.user,
+                lastMessage: blocked.lastMessage,
+                lastMessageTime: blocked.lastMessageTime,
+                conversationId: blocked.conversationId
+            }, ...prev]);
+            toast.success('Đã bỏ chặn người dùng');
+        } catch (error) {
+            console.log(error);
+            toast.error('Không thể bỏ chặn người dùng');
         }
     };
 
@@ -148,11 +215,19 @@ const ChatPage = () => {
     }, [selectedUser?._id, dispatch]);
 
     const sendMessageHandler = async (receiverId) => {
-        if (!textMessage.trim() && !selectedImage) return;
+        if ((!textMessage.trim() && !selectedImage) || isSending) return;
+
         try {
-            const res = await axios.post(`${API_URL}/api/v1/message/send/${receiverId}`, { textMessage }, {
+            setIsSending(true);
+            const formData = new FormData();
+            formData.append('textMessage', textMessage);
+            if (selectedImage) {
+                formData.append('image', selectedImage);
+            }
+
+            const res = await axios.post(`${API_URL}/api/v1/message/send/${receiverId}`, formData, {
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'multipart/form-data'
                 },
                 withCredentials: true
             });
@@ -166,7 +241,14 @@ const ChatPage = () => {
             }
         } catch (error) {
             console.log(error);
-            toast.error('Failed to send message');
+            // Handle declined conversation
+            if (error.response?.data?.isDeclined) {
+                toast.error(error.response.data.message || 'Người này đã từ chối tin nhắn của bạn');
+            } else {
+                toast.error('Failed to send message');
+            }
+        } finally {
+            setIsSending(false);
         }
     }
 
@@ -213,16 +295,24 @@ const ChatPage = () => {
         }
     };
 
-    const handleDeclineRequest = (request) => {
-        setMessageRequestsList(prev => prev.filter(r => r.conversationId !== request.conversationId));
-        toast.success('Message request declined');
+    const handleDeclineRequest = async (request) => {
+        try {
+            // Call backend to persist the decline
+            await axios.post(`${API_URL}/api/v1/message/requests/${request.conversationId}/decline`, {}, {
+                withCredentials: true
+            });
+            // Remove from local state
+            setMessageRequestsList(prev => prev.filter(r => r.conversationId !== request.conversationId));
+            toast.success('Đã từ chối yêu cầu nhắn tin');
+        } catch (error) {
+            console.log(error);
+            toast.error('Không thể từ chối yêu cầu');
+        }
     };
 
-    useEffect(() => {
-        return () => {
-            dispatch(setSelectedUser(null));
-        }
-    }, []);
+    // Note: Removed cleanup effect that was clearing selectedUser on unmount
+    // This was causing issues with React 18 StrictMode double-mounting
+    // and preventing navigation from Profile to open the correct conversation
 
     const totalRequests = messageRequestsList?.length || 0;
 
@@ -255,28 +345,42 @@ const ChatPage = () => {
                     </div>
                 </div>
 
-                {/* Messages & Requests tabs */}
-                <div className='flex px-4 mb-2'>
+                {/* Messages, Requests & Blocked tabs */}
+                <div className='flex px-2 sm:px-4 mb-2'>
                     <button
                         onClick={() => setActiveTab('messages')}
-                        className={`flex-1 py-2 text-sm font-semibold transition-colors ${activeTab === 'messages'
+                        className={`flex-1 py-2 text-xs sm:text-sm font-semibold transition-colors ${activeTab === 'messages'
                             ? 'text-white border-b-2 border-white'
                             : 'text-gray-500 hover:text-gray-300 border-b-2 border-transparent'
                             }`}
                     >
-                        Messages
+                        Tin nhắn
                     </button>
                     <button
                         onClick={() => setActiveTab('requests')}
-                        className={`flex-1 py-2 text-sm font-semibold transition-colors relative ${activeTab === 'requests'
+                        className={`flex-1 py-2 text-xs sm:text-sm font-semibold transition-colors relative ${activeTab === 'requests'
                             ? 'text-white border-b-2 border-white'
                             : 'text-gray-500 hover:text-gray-300 border-b-2 border-transparent'
                             }`}
                     >
-                        Requests
+                        Yêu cầu
                         {totalRequests > 0 && (
-                            <span className='absolute -top-1 right-4 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center'>
+                            <span className='absolute -top-1 right-1 sm:right-4 bg-red-500 text-white text-[10px] sm:text-xs rounded-full w-4 h-4 sm:w-5 sm:h-5 flex items-center justify-center'>
                                 {totalRequests}
+                            </span>
+                        )}
+                    </button>
+                    <button
+                        onClick={() => setActiveTab('blocked')}
+                        className={`flex-1 py-2 text-xs sm:text-sm font-semibold transition-colors relative ${activeTab === 'blocked'
+                            ? 'text-white border-b-2 border-white'
+                            : 'text-gray-500 hover:text-gray-300 border-b-2 border-transparent'
+                            }`}
+                    >
+                        Đã chặn
+                        {blockedUsersList.length > 0 && (
+                            <span className='absolute -top-1 right-1 sm:right-4 bg-gray-600 text-white text-[10px] sm:text-xs rounded-full w-4 h-4 sm:w-5 sm:h-5 flex items-center justify-center'>
+                                {blockedUsersList.length}
                             </span>
                         )}
                     </button>
@@ -336,47 +440,87 @@ const ChatPage = () => {
                                 )
                             })
                         )
-                    ) : (
+                    ) : activeTab === 'requests' ? (
                         // Requests List
                         messageRequestsList.length === 0 ? (
                             <div className='flex flex-col items-center justify-center py-12 text-gray-500'>
-                                <p className='text-sm'>No message requests</p>
-                                <p className='text-xs mt-1'>Messages from people you don't follow will appear here</p>
+                                <p className='text-xs sm:text-sm'>Không có yêu cầu nhắn tin</p>
+                                <p className='text-[10px] sm:text-xs mt-1 text-center px-4'>Tin nhắn từ những người bạn không theo dõi sẽ xuất hiện ở đây</p>
                             </div>
                         ) : (
                             messageRequestsList.map((request) => (
                                 <div
                                     key={request.conversationId}
-                                    className='flex gap-3 items-center px-5 py-3 hover:bg-gray-900 transition-colors'
+                                    className='flex gap-2 sm:gap-3 items-center px-3 sm:px-5 py-3 hover:bg-gray-900 transition-colors'
                                 >
-                                    <Avatar className='w-14 h-14'>
+                                    <Avatar className='w-10 h-10 sm:w-14 sm:h-14'>
                                         <AvatarImage src={request.user?.profilePicture || DEFAULT_AVATAR} />
                                         <AvatarFallback className='bg-gray-800'>
                                             <img src={DEFAULT_AVATAR} alt='' className='w-full h-full' />
                                         </AvatarFallback>
                                     </Avatar>
                                     <div className='flex-1 min-w-0'>
-                                        <span className='font-medium text-white block truncate'>
+                                        <span className='font-medium text-white block truncate text-sm'>
                                             {request.user?.username || 'Unknown User'}
                                         </span>
-                                        <span className='text-sm text-gray-500 truncate block'>
-                                            {request.lastMessage || 'Wants to send you a message'}
+                                        <span className='text-xs sm:text-sm text-gray-500 truncate block'>
+                                            {request.lastMessage || 'Muốn gửi tin nhắn cho bạn'}
                                         </span>
                                     </div>
-                                    <div className='flex gap-2'>
+                                    <div className='flex gap-1 sm:gap-2'>
                                         <button
                                             onClick={() => handleAcceptRequest(request)}
-                                            className='w-8 h-8 bg-blue-500 hover:bg-blue-600 rounded-full flex items-center justify-center transition-colors'
+                                            className='w-7 h-7 sm:w-8 sm:h-8 bg-blue-500 hover:bg-blue-600 rounded-full flex items-center justify-center transition-colors'
                                         >
-                                            <Check className='w-4 h-4 text-white' />
+                                            <Check className='w-3 h-3 sm:w-4 sm:h-4 text-white' />
                                         </button>
                                         <button
                                             onClick={() => handleDeclineRequest(request)}
-                                            className='w-8 h-8 bg-gray-700 hover:bg-gray-600 rounded-full flex items-center justify-center transition-colors'
+                                            className='w-7 h-7 sm:w-8 sm:h-8 bg-gray-700 hover:bg-gray-600 rounded-full flex items-center justify-center transition-colors'
                                         >
-                                            <X className='w-4 h-4 text-white' />
+                                            <X className='w-3 h-3 sm:w-4 sm:h-4 text-white' />
                                         </button>
                                     </div>
+                                </div>
+                            ))
+                        )
+                    ) : (
+                        // Blocked List
+                        loadingBlocked ? (
+                            <div className='flex flex-col items-center justify-center py-12 text-gray-500'>
+                                <p className='text-xs sm:text-sm'>Đang tải...</p>
+                            </div>
+                        ) : blockedUsersList.length === 0 ? (
+                            <div className='flex flex-col items-center justify-center py-12 text-gray-500'>
+                                <p className='text-xs sm:text-sm'>Không có người dùng bị chặn</p>
+                                <p className='text-[10px] sm:text-xs mt-1 text-center px-4'>Khi bạn từ chối yêu cầu nhắn tin, họ sẽ xuất hiện ở đây</p>
+                            </div>
+                        ) : (
+                            blockedUsersList.map((blocked) => (
+                                <div
+                                    key={blocked.conversationId}
+                                    className='flex gap-2 sm:gap-3 items-center px-3 sm:px-5 py-3 hover:bg-gray-900 transition-colors'
+                                >
+                                    <Avatar className='w-10 h-10 sm:w-14 sm:h-14 opacity-60'>
+                                        <AvatarImage src={blocked.user?.profilePicture || DEFAULT_AVATAR} />
+                                        <AvatarFallback className='bg-gray-800'>
+                                            <img src={DEFAULT_AVATAR} alt='' className='w-full h-full' />
+                                        </AvatarFallback>
+                                    </Avatar>
+                                    <div className='flex-1 min-w-0'>
+                                        <span className='font-medium text-gray-400 block truncate text-sm'>
+                                            {blocked.user?.username || 'Unknown User'}
+                                        </span>
+                                        <span className='text-xs sm:text-sm text-gray-600 truncate block'>
+                                            Đã chặn
+                                        </span>
+                                    </div>
+                                    <button
+                                        onClick={() => handleUnblock(blocked)}
+                                        className='px-3 sm:px-4 py-1.5 sm:py-2 bg-gray-700 hover:bg-gray-600 text-white text-xs sm:text-sm font-medium rounded-lg transition-colors'
+                                    >
+                                        Bỏ chặn
+                                    </button>
                                 </div>
                             ))
                         )
@@ -441,45 +585,54 @@ const ChatPage = () => {
                             )}
 
                             {/* Message Input */}
-                            <div className='px-5 py-4 border-t border-gray-800'>
-                                <div className='flex items-center gap-3 bg-gray-900 rounded-full px-4 py-2 border border-gray-700'>
-                                    <button className='text-white hover:opacity-70 transition-opacity'>
-                                        <Smile className='w-6 h-6' />
-                                    </button>
-                                    <input
-                                        ref={inputRef}
-                                        value={textMessage}
-                                        onChange={(e) => setTextMessage(e.target.value)}
-                                        onKeyPress={handleKeyPress}
-                                        type='text'
-                                        className='flex-1 bg-transparent text-white placeholder:text-gray-500 outline-none text-sm'
-                                        placeholder='Message...'
-                                    />
-                                    {textMessage.trim() ? (
-                                        <button
-                                            onClick={() => sendMessageHandler(selectedUser?._id)}
-                                            className='text-blue-500 font-semibold text-sm hover:text-white transition-colors'
-                                        >
-                                            Send
+                            <div className='px-3 sm:px-5 py-3 sm:py-4 border-t border-gray-800'>
+                                {conversationStatus?.isDeclined && conversationStatus?.declinedBy === selectedUser?._id ? (
+                                    // Show disabled input when declined
+                                    <div className='flex items-center justify-center gap-2 bg-gray-900/50 rounded-full px-4 py-3 border border-gray-700/50'>
+                                        <p className='text-gray-500 text-xs sm:text-sm text-center'>
+                                            Bạn không thể gửi tin nhắn cho người dùng này
+                                        </p>
+                                    </div>
+                                ) : (
+                                    // Normal input
+                                    <div className='flex items-center gap-2 sm:gap-3 bg-gray-900 rounded-full px-3 sm:px-4 py-2 border border-gray-700'>
+                                        <button className='text-white hover:opacity-70 transition-opacity hidden sm:block'>
+                                            <Smile className='w-5 h-5 sm:w-6 sm:h-6' />
                                         </button>
-                                    ) : (
-                                        <>
-                                            <input
-                                                ref={imageInputRef}
-                                                type='file'
-                                                accept='image/*'
-                                                onChange={handleImageSelect}
-                                                className='hidden'
-                                            />
+
+                                        <input
+                                            ref={imageInputRef}
+                                            type='file'
+                                            accept='image/*'
+                                            onChange={handleImageSelect}
+                                            className='hidden'
+                                        />
+                                        <button
+                                            onClick={() => imageInputRef.current?.click()}
+                                            className='text-white hover:opacity-70 transition-opacity'
+                                        >
+                                            <ImageIcon className='w-5 h-5 sm:w-6 sm:h-6' />
+                                        </button>
+
+                                        <input
+                                            ref={inputRef}
+                                            value={textMessage}
+                                            onChange={(e) => setTextMessage(e.target.value)}
+                                            onKeyPress={handleKeyPress}
+                                            type='text'
+                                            className='flex-1 bg-transparent text-white placeholder:text-gray-500 outline-none text-sm'
+                                            placeholder='Nhắn tin...'
+                                        />
+                                        {textMessage.trim() || selectedImage ? (
                                             <button
-                                                onClick={() => imageInputRef.current?.click()}
-                                                className='text-white hover:opacity-70 transition-opacity'
+                                                onClick={() => sendMessageHandler(selectedUser?._id)}
+                                                className='text-blue-500 font-semibold text-xs sm:text-sm hover:text-white transition-colors'
                                             >
-                                                <ImageIcon className='w-6 h-6' />
+                                                Gửi
                                             </button>
-                                        </>
-                                    )}
-                                </div>
+                                        ) : null}
+                                    </div>
+                                )}
                             </div>
                         </div>
 

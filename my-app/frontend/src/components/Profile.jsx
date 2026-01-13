@@ -56,7 +56,7 @@ const EditProfileModal = ({ isOpen, onClose, user, onSuccess }) => {
     }
     try {
       setLoading(true);
-      const res = await axios.post(`${API_URL}/user/profile/edit`, formData, {
+      const res = await axios.post(`${API_URL}/api/v1/user/profile/edit`, formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
         withCredentials: true
       });
@@ -65,9 +65,11 @@ const EditProfileModal = ({ isOpen, onClose, user, onSuccess }) => {
           ...user,
           bio: res.data.user?.bio,
           profilePicture: res.data.user?.profilePicture,
-          gender: res.data.user.gender
+          gender: res.data.user?.gender
         };
+        // Update both authUser and userProfile so all pages reflect the change
         dispatch(setAuthUser(updatedUserData));
+        dispatch(setUserProfile(updatedUserData));
         toast.success(res.data.message);
         onSuccess?.();
         onClose();
@@ -84,7 +86,7 @@ const EditProfileModal = ({ isOpen, onClose, user, onSuccess }) => {
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[450px] bg-gray-900 border-gray-800 text-white p-0 gap-0">
+      <DialogContent className="sm:max-w-[450px] bg-gray-900 border-gray-800 text-white p-0 gap-0 fixed z-[100]" style={{ backdropFilter: 'blur(8px)' }}>
         <DialogHeader className="border-b border-gray-800 p-4">
           <div className="flex items-center justify-between">
             <DialogTitle className="text-white text-lg font-semibold">Chỉnh sửa trang cá nhân</DialogTitle>
@@ -209,7 +211,7 @@ const FollowListModal = ({ isOpen, onClose, title, users, currentUserId }) => {
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[425px] bg-gray-900 border-gray-800 text-white">
+      <DialogContent className="sm:max-w-[425px] bg-gray-900 border-gray-800 text-white fixed z-[100]">
         <DialogHeader className="border-b border-gray-800 pb-4">
           <div className="flex items-center justify-between">
             <DialogTitle className="text-white text-lg font-semibold">{title}</DialogTitle>

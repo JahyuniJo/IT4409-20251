@@ -8,6 +8,7 @@ const chatSlice = createSlice({
         allConversations: {}, // Store messages by recipientId
         messageRequests: [], // Messages from non-followed users
         unreadCounts: {}, // Track unread message counts by recipientId
+        conversationStatus: { isDeclined: false, declinedBy: null }, // Track current conversation status
     },
     reducers: {
         setOnlineUsers: (state, action) => {
@@ -15,6 +16,9 @@ const chatSlice = createSlice({
         },
         setMessages: (state, action) => {
             state.messages = action.payload;
+        },
+        setConversationStatus: (state, action) => {
+            state.conversationStatus = action.payload;
         },
         addMessage: (state, action) => {
             const { message, recipientId } = action.payload;
@@ -73,6 +77,7 @@ const chatSlice = createSlice({
         },
         clearMessages: (state) => {
             state.messages = [];
+            state.conversationStatus = { isDeclined: false, declinedBy: null };
         }
     }
 });
@@ -80,6 +85,7 @@ const chatSlice = createSlice({
 export const {
     setOnlineUsers,
     setMessages,
+    setConversationStatus,
     addMessage,
     addIncomingMessage,
     setMessageRequests,

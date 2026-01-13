@@ -23,6 +23,7 @@ const persistConfig = {
     key: 'root',
     version: 1,
     storage,
+    blacklist: ['socketio'], // Don't persist socket - it's not serializable
 }
 
 const rootReducer = combineReducers({
@@ -42,7 +43,9 @@ const store = configureStore({
     middleware: (getDefaultMiddleware) =>
         getDefaultMiddleware({
             serializableCheck: {
-                ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
+                ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER, 'socketio/setSocket'],
+                // Ignore socketio paths since Socket objects are not serializable
+                ignoredPaths: ['socketio.socket'],
             },
         }),
 });

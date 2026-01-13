@@ -12,6 +12,15 @@ const conversationSchema = new mongoose.Schema({
     isRequest: {
         type: Boolean,
         default: false
+    },
+    isDeclined: {
+        type: Boolean,
+        default: false
+    },
+    declinedBy: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+        default: null
     }
 }, { timestamps: true });
 
