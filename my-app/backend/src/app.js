@@ -21,22 +21,15 @@ app.use(urlencoded({ extended: true }));
 app.use(cookieParser());
 
 // CORS Configuration
-const allowedOrigins = [ process.env.URL ||
-  "http://localhost:5173",
-  process.env.FRONTEND_URL
-];
+const corsOptions = {
+    // Nhập CHÍNH XÁC link Vercel của bạn (không có dấu gạch chéo / ở cuối)
+    origin: FRONTEND_URL, 
+    credentials: true, // Bắt buộc phải có để gửi/nhận cookie (token)
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization']
+};
 
-app.use(cors({
-  origin: function (origin, callback) {
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error("Not allowed by CORS"));
-    }
-  },
-  credentials: true
-}));
-
+app.use(cors(corsOptions));
 
 // API Routes
 app.use("/api/v1/user", userRoute);
