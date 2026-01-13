@@ -16,7 +16,8 @@ const PORT = process.env.PORT || 8000;
 const __dirname = path.resolve();
 
 // Middlewares
-app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
+app.use(urlencoded({ extended: true }));
 app.use(cookieParser());
 
 // CORS Configuration
