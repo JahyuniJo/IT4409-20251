@@ -7,6 +7,8 @@ import {
     login,
     logout,
     register,
+    forgotPassword,
+    resetPassword,
     searchUsers
 } from "../controllers/user.controller.js";
 import isAuthenticated from "../middlewares/isAuthenticated.js";
@@ -17,10 +19,15 @@ const router = express.Router();
 router.route('/register').post(register);
 router.route('/login').post(login);
 router.route('/logout').get(logout);
-router.route('/search').get(isAuthenticated, searchUsers);
-router.route('/:id/profile').get(isAuthenticated, getProfile);
-router.route('/profile/edit').post(isAuthenticated, upload.single('profilePhoto'), editProfile);
+
 router.route('/suggested').get(isAuthenticated, getSuggestedUsers);
 router.route('/followorunfollow/:id').post(isAuthenticated, followOrUnfollow);
+router.route('/search').get(isAuthenticated, searchUsers);
 
+router.route('/:id/profile').get(isAuthenticated, getProfile);
+router.route('/profile/edit').post(isAuthenticated, upload.single('profilePhoto'), editProfile);
+
+
+router.route('/forgot-password').post(forgotPassword);
+router.route('/reset-password-otp').post(resetPassword);
 export default router;

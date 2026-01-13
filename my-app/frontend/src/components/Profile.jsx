@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react'
 import { Grid3X3, Bookmark, X, Film, ImagePlus, Loader2 } from 'lucide-react'
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar'
 import useGetUserProfile from '@/hooks/useGetUserProfile';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useSearchParams, useNavigate, useLocation } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { Button } from './ui/button';
 import { Badge } from './ui/badge';
@@ -18,67 +18,79 @@ import StoryViewer from './StoryViewer';
 
 const API_URL = import.meta.env.VITE_API_URL;
 const DEFAULT_AVATAR = 'https://res.cloudinary.com/dva00tzke/image/upload/v1768276886/user_curjop.png?v=2';
-
 // Edit Profile Modal Component (Dark Theme)
 const EditProfileModal = ({ isOpen, onClose, user, onSuccess }) => {
   const imageRef = useRef();
-  const [loading, setLoading] = useState(false);
-  const [input, setInput] = useState({
-    profilePhoto: user?.profilePicture,
-    bio: user?.bio || '',
-    gender: user?.gender || 'Other'
-  });
   const dispatch = useDispatch();
 
+  const [loading, setLoading] = useState(false);
+  const [input, setInput] = useState({
+    profilePhoto: null,
+    bio: "",
+    gender: "Other",
+  });
+
+  /* Sync state when modal opens */
   useEffect(() => {
-    if (user) {
+    if (user && isOpen) {
       setInput({
-        profilePhoto: user.profilePicture,
-        bio: user.bio || '',
-        gender: user.gender || 'Other'
+        profilePhoto: user.profilePicture || null,
+        bio: user.bio || "",
+        gender: user.gender || "Other",
       });
     }
   }, [user, isOpen]);
 
   const fileChangeHandler = (e) => {
     const file = e.target.files?.[0];
-    if (file) setInput({ ...input, profilePhoto: file });
+    if (file) {
+      setInput((prev) => ({ ...prev, profilePhoto: file }));
+    }
   };
 
   const selectChangeHandler = (value) => {
-    setInput({ ...input, gender: value });
+    setInput((prev) => ({ ...prev, gender: value }));
   };
 
   const editProfileHandler = async () => {
-    const formData = new FormData();
-    formData.append("bio", input.bio);
-    formData.append("gender", input.gender);
-    if (input.profilePhoto instanceof File) {
-      formData.append("profilePhoto", input.profilePhoto);
-    }
     try {
       setLoading(true);
-      const res = await axios.post(`${API_URL}/api/v1/user/profile/edit`, formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-        withCredentials: true
-      });
+
+      const formData = new FormData();
+      formData.append("bio", input.bio);
+      formData.append("gender", input.gender);
+
+      if (input.profilePhoto instanceof File) {
+        formData.append("profilePhoto", input.profilePhoto);
+      }
+
+      const res = await axios.post(
+        `${API_URL}/api/v1/user/profile/edit`,
+        formData,
+        {
+          withCredentials: true,
+          headers: { "Content-Type": "multipart/form-data" },
+        }
+      );
+
       if (res.data.success) {
-        const updatedUserData = {
+        const updatedUser = {
           ...user,
-          bio: res.data.user?.bio,
-          profilePicture: res.data.user?.profilePicture,
-          gender: res.data.user?.gender
+          bio: res.data.user.bio,
+          profilePicture: res.data.user.profilePicture,
+          gender: res.data.user.gender,
         };
-        // Update both authUser and userProfile so all pages reflect the change
-        dispatch(setAuthUser(updatedUserData));
-        dispatch(setUserProfile(updatedUserData));
+
+        dispatch(setAuthUser(updatedUser));
+        dispatch(setUserProfile(updatedUser));
+
         toast.success(res.data.message);
         onSuccess?.();
         onClose();
       }
     } catch (error) {
-      console.log(error);
-      toast.error(error.response?.data?.message || 'Failed to update profile');
+      console.error(error);
+      toast.error(error.response?.data?.message || "Update failed");
     } finally {
       setLoading(false);
     }
@@ -86,12 +98,19 @@ const EditProfileModal = ({ isOpen, onClose, user, onSuccess }) => {
 
   if (!isOpen) return null;
 
+  const avatarSrc =
+    input.profilePhoto instanceof File
+      ? URL.createObjectURL(input.profilePhoto)
+      : input.profilePhoto || DEFAULT_AVATAR;
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[450px] bg-gray-900 border-gray-800 text-white p-0 gap-0 fixed z-[100] top-[50%] left-[50%] translate-x-[-50%] translate-y-[-50%]" style={{ backdropFilter: 'blur(8px)' }}>
+      <DialogContent className="sm:max-w-[450px] bg-gray-900 border-gray-800 text-white p-0 fixed z-[100] top-[50%] left-[50%] translate-x-[-50%] translate-y-[-50%]">
         <DialogHeader className="border-b border-gray-800 p-4">
           <div className="flex items-center justify-between">
-            <DialogTitle className="text-white text-lg font-semibold">Chỉnh sửa trang cá nhân</DialogTitle>
+            <DialogTitle className="text-lg font-semibold">
+              Chỉnh sửa trang cá nhân
+            </DialogTitle>
             <button onClick={onClose} className="text-gray-400 hover:text-white">
               <X className="w-6 h-6" />
             </button>
@@ -99,74 +118,86 @@ const EditProfileModal = ({ isOpen, onClose, user, onSuccess }) => {
         </DialogHeader>
 
         <div className="p-6 space-y-6">
-          {/* Avatar Section */}
+          {/* Avatar */}
           <div className="flex flex-col items-center">
-            <div className="relative group cursor-pointer" onClick={() => imageRef.current.click()}>
-              <Avatar className="h-24 w-24 border-2 border-gray-700 group-hover:opacity-80 transition-opacity">
-                <AvatarImage
-                  src={input.profilePhoto instanceof File ? URL.createObjectURL(input.profilePhoto) : (input.profilePhoto || DEFAULT_AVATAR)}
-                  className="object-cover"
-                />
-                <AvatarFallback className="text-2xl bg-gray-800 text-white">
-                  <img src={DEFAULT_AVATAR} alt="default" className="w-full h-full object-cover" />
+            <div
+              className="relative cursor-pointer"
+              onClick={() => imageRef.current.click()}
+            >
+              <Avatar className="h-24 w-24 border border-gray-700">
+                <AvatarImage src={avatarSrc} className="object-cover" />
+                <AvatarFallback>
+                  <img src={DEFAULT_AVATAR} />
                 </AvatarFallback>
               </Avatar>
-              <div className="absolute bottom-0 right-0 bg-blue-500 p-1.5 rounded-full text-white shadow-lg hover:bg-blue-600 transition-colors">
-                <ImagePlus className="h-3 w-3" />
+
+              <div className="absolute bottom-0 right-0 bg-blue-500 p-1.5 rounded-full">
+                <ImagePlus className="w-4 h-4" />
               </div>
             </div>
-            <p className="text-white font-semibold mt-3">{user?.username}</p>
+
+            <p className="mt-3 font-semibold">{user?.username}</p>
             <button
               onClick={() => imageRef.current.click()}
-              className="text-blue-400 text-sm font-medium hover:text-blue-300 mt-1"
+              className="text-blue-400 text-sm mt-1"
             >
               Thay đổi ảnh đại diện
             </button>
-            <input ref={imageRef} onChange={fileChangeHandler} type="file" accept="image/*" className="hidden" />
+
+            <input
+              ref={imageRef}
+              type="file"
+              accept="image/*"
+              onChange={fileChangeHandler}
+              className="hidden"
+            />
           </div>
 
-          {/* Bio Input */}
+          {/* Bio */}
           <div className="space-y-2">
-            <label className="text-sm font-medium text-gray-300">Tiểu sử</label>
+            <label className="text-sm text-gray-300">Tiểu sử</label>
             <Textarea
               value={input.bio}
-              onChange={(e) => setInput({ ...input, bio: e.target.value })}
-              placeholder="Tiểu sử"
-              className="min-h-[80px] resize-none bg-gray-800 border-gray-700 text-white placeholder:text-gray-500 focus:border-gray-600 focus-visible:ring-0"
+              onChange={(e) =>
+                setInput((prev) => ({ ...prev, bio: e.target.value }))
+              }
+              className="bg-gray-800 border-gray-700 text-white resize-none"
             />
-            <p className="text-xs text-gray-500 text-right">{input.bio?.length || 0} kí tự</p>
+            <p className="text-xs text-gray-500 text-right">
+              {input.bio.length} kí tự
+            </p>
           </div>
 
-          {/* Gender Select */}
+          {/* Gender */}
           <div className="space-y-2">
-            <label className="text-sm font-medium text-gray-300">Giới tính</label>
+            <label className="text-sm text-gray-300">Giới tính</label>
             <Select value={input.gender} onValueChange={selectChangeHandler}>
-              <SelectTrigger className="w-full h-11 bg-gray-800 border-gray-700 text-white focus:ring-0">
-                <SelectValue placeholder="Chọn giới tính" />
+              <SelectTrigger className="bg-gray-800 border-gray-700 text-white">
+                <SelectValue />
               </SelectTrigger>
               <SelectContent className="bg-gray-800 border-gray-700">
                 <SelectGroup>
-                  <SelectItem value="male" className="text-white cursor-pointer hover:bg-gray-700">Nam</SelectItem>
-                  <SelectItem value="female" className="text-white cursor-pointer hover:bg-gray-700">Nữ</SelectItem>
-                  <SelectItem value="Other" className="text-white cursor-pointer hover:bg-gray-700">Tùy chỉnh</SelectItem>
+                  <SelectItem value="male">Nam</SelectItem>
+                  <SelectItem value="female">Nữ</SelectItem>
+                  <SelectItem value="Other">Tùy chỉnh</SelectItem>
                 </SelectGroup>
               </SelectContent>
             </Select>
           </div>
 
-          {/* Submit Button */}
+          {/* Submit */}
           <Button
             onClick={editProfileHandler}
             disabled={loading}
-            className="w-full h-11 bg-blue-500 hover:bg-blue-600 text-white font-semibold"
+            className="w-full bg-blue-500 hover:bg-blue-600"
           >
             {loading ? (
               <span className="flex items-center gap-2">
-                <Loader2 className="h-4 w-4 animate-spin" />
+                <Loader2 className="w-4 h-4 animate-spin" />
                 Đang lưu...
               </span>
             ) : (
-              'Lưu thay đổi'
+              "Lưu thay đổi"
             )}
           </Button>
         </div>
@@ -282,7 +313,6 @@ const Profile = () => {
   const [activeTab, setActiveTab] = useState('posts');
   const [followersModalOpen, setFollowersModalOpen] = useState(false);
   const [followingModalOpen, setFollowingModalOpen] = useState(false);
-  const [editProfileOpen, setEditProfileOpen] = useState(false);
   const [userReels, setUserReels] = useState([]);
   const [loadingReels, setLoadingReels] = useState(false);
   const [selectedPost, setSelectedPost] = useState(null);
@@ -294,9 +324,18 @@ const Profile = () => {
   const { userProfile, user } = useSelector(store => store.auth);
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const location = useLocation();
+  const searchParams = new URLSearchParams(location.search);
+  const tabFromUrl = searchParams.get("tab");
+  const isEditOpen = searchParams.get("edit") === "true";
 
   const isLoggedInUserProfile = user?._id === userProfile?._id;
   const isFollowing = user?.following?.includes(userProfile?._id);
+  useEffect(() => {
+    if (tabFromUrl) {
+      setActiveTab(tabFromUrl);
+    }
+  }, [tabFromUrl]);
 
   // Fetch user reels when tab changes
   useEffect(() => {
@@ -370,7 +409,9 @@ const Profile = () => {
 
   const handleTabChange = (tab) => {
     setActiveTab(tab);
+    navigate(`/profile/${userProfile._id}?tab=${tab}`);
   };
+
 
   // Determine what to display based on active tab
   const getDisplayedContent = () => {
@@ -479,7 +520,7 @@ const Profile = () => {
             <div className="mt-6 w-full">
               {isLoggedInUserProfile ? (
                 <Button
-                  onClick={() => setEditProfileOpen(true)}
+                  onClick={() => navigate(`/profile/${userProfile._id}?edit=true`)}
                   variant="secondary"
                   className="w-full h-11 rounded-lg text-sm font-semibold bg-gray-800 hover:bg-gray-700 text-white border-gray-700 transition-colors"
                 >
@@ -660,13 +701,12 @@ const Profile = () => {
 
       {/* Edit Profile Modal */}
       <EditProfileModal
-        isOpen={editProfileOpen}
-        onClose={() => setEditProfileOpen(false)}
+        isOpen={isEditOpen}
         user={user}
-        onSuccess={() => {
-          // Refresh profile data if needed
-        }}
+        onClose={() => navigate(`/profile/${userProfile._id}`)}
+        onSuccess={() => navigate(`/profile/${userProfile._id}`)}
       />
+
 
       {/* Post Detail Modal */}
       <PostDetailModal

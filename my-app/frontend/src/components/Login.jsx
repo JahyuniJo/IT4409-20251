@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button'
 import axios from 'axios'
 import { toast } from 'sonner'
 import { Link, useNavigate } from 'react-router-dom'
-import { Loader2, Mail, Lock } from 'lucide-react'
+import { Loader2, Mail, Lock, Eye, EyeOff } from 'lucide-react'
 import { useDispatch, useSelector } from 'react-redux'
 import { setAuthUser } from '@/redux/authSlice'
 
@@ -77,10 +77,10 @@ const Login = () => {
                             </svg>
                         </div>
                         <h1 className="text-3xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent mb-2">
-                            Welcome Back
+                            Chào mừng trở lại!
                         </h1>
                         <p className="text-gray-400 text-sm">
-                            Login to see photos & videos from your friends
+                            Đăng nhập vào tài khoản của bạn
                         </p>
                     </div>
 
@@ -97,7 +97,7 @@ const Login = () => {
                                 name="email"
                                 value={input.email}
                                 onChange={changeEventHandler}
-                                placeholder="Enter your email"
+                                placeholder="Nhập email của bạn"
                                 className="bg-gray-700/50 border-gray-600 text-white placeholder:text-gray-500 focus-visible:ring-purple-500 focus-visible:border-purple-500"
                                 required
                             />
@@ -114,12 +114,19 @@ const Login = () => {
                                 name="password"
                                 value={input.password}
                                 onChange={changeEventHandler}
-                                placeholder="Enter your password"
+                                placeholder="Nhập mật khẩu của bạn"
                                 className="bg-gray-700/50 border-gray-600 text-white placeholder:text-gray-500 focus-visible:ring-purple-500 focus-visible:border-purple-500"
                                 required
                             />
                         </div>
-
+                        <div className="text-right">
+                            <Link
+                                to="/forgot-password"
+                                className="text-sm text-blue-600 hover:text-blue-700 font-medium"
+                            >
+                                Quên mật khẩu?
+                            </Link>
+                        </div>
                         {/* Submit Button */}
                         <Button
                             type="submit"
@@ -139,19 +146,12 @@ const Login = () => {
 
                     {/* Signup Link */}
                     <p className="text-center text-sm text-gray-400 mt-6">
-                        Do not have an account?{' '}
+                        Chưa có tài khoản?{' '}
                         <Link to="/signup" className="font-semibold text-purple-400 hover:text-purple-300 transition-colors">
-                            Sign up
+                            Đăng ký ngay
                         </Link>
                     </p>
 
-                    {/* Terms */}
-                    <p className="text-xs text-center text-gray-500 mt-4">
-                        By continuing, you agree to our{' '}
-                        <Link to="/terms" className="text-purple-400 hover:underline">Terms</Link>
-                        {' '}and{' '}
-                        <Link to="/privacy" className="text-purple-400 hover:underline">Privacy Policy</Link>
-                    </p>
                 </div>
             </div>
 

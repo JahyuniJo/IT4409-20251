@@ -11,22 +11,38 @@ import {
   PlusSquare,
   MoreHorizontal,
   LogOut,
+  Settings,
+  Bookmark,
+  Repeat,
   X,
 } from "lucide-react";
 import CreatePost from "./CreatePost";
 import { setAuthUser } from "@/redux/authSlice";
 import axios from "axios";
 import { toast } from "sonner";
+import SwitchAccountModal from "./SwitchAccountModal";
 import "../App.css";
 
 const API_URL = import.meta.env.VITE_API_URL;
 const DEFAULT_AVATAR = 'https://res.cloudinary.com/dva00tzke/image/upload/v1768276886/user_curjop.png?v=2';
-
+function MenuItem({ icon, text, onClick, danger }) {
+  return (
+    <button
+      onClick={onClick}
+      className={`menu-item ${danger ? "danger" : ""}`}
+    >
+      {icon}
+      <span>{text}</span>
+    </button>
+  );
+}
 export default function LeftSidebar() {
   const navigate = useNavigate();
   const location = useLocation();
   const dispatch = useDispatch();
   const { user } = useSelector((store) => store.auth);
+  const [showMore, setShowMore] = useState(false);
+  const [showSwitchAccount, setShowSwitchAccount] = useState(false);
   const { suggestedUsers } = useSelector((store) => store.auth);
   const { likeNotification } = useSelector(
     (store) => store.realTimeNotification
@@ -70,6 +86,16 @@ export default function LeftSidebar() {
     setSearchQuery("");
     setSearchResults([]);
   };
+
+
+  // Chỉ thêm sự kiện khi menu được mở tránh addEventListener nhiều lần
+  useEffect(() => {
+    if (!showMore) return;
+
+    const handler = () => setShowMore(false);
+    window.addEventListener("click", handler);
+    return () => window.removeEventListener("click", handler);
+  }, [showMore]);
 
   // Focus search input when panel opens
   useEffect(() => {
@@ -203,19 +229,56 @@ export default function LeftSidebar() {
           </Link>
         </nav>
 
-        <div className="sidebar-bottom">
-          <button onClick={handleLogout} className="sidebar-item sidebar-logout-btn">
-            <LogOut size={24} />
-            <span>Đăng xuất</span>
-          </button>
-
+        <div className="mt-auto relative">
           <button
-            onClick={() => handleComingSoon("Xem thêm")}
-            className="sidebar-item"
+            onClick={(e) => {
+              e.stopPropagation();
+              setShowMore(prev => !prev);
+            }}
+            className="sidebar-item w-full"
           >
             <MoreHorizontal size={24} />
             <span>Xem thêm</span>
           </button>
+
+          {showMore && (
+            <div className="more-menu" onClick={(e) => e.stopPropagation()}>
+              <MenuItem
+                icon={<Settings size={18} />}
+                text="Cài đặt"
+                onClick={() => {
+                  setShowMore(false);
+                  navigate(`/profile/${user._id}?edit=true`);
+                }}
+              />
+
+              <MenuItem
+                icon={<Bookmark size={18} />}
+                text="Đã lưu"
+                onClick={() => {
+                  setShowMore(false);
+                  navigate(`/profile/${user?._id}?tab=saved`);
+                }}
+              />
+
+              <div className="menu-divider" />
+
+              <MenuItem
+                icon={<Repeat size={18} />}
+                text="Chuyển tài khoản"
+                onClick={() => {
+                  setShowMore(false);
+                  setShowSwitchAccount(true);
+                }}
+              />
+              <MenuItem
+                icon={<LogOut size={18} />}
+                text="Đăng xuất"
+                danger
+                onClick={handleLogout}
+              />
+            </div>
+          )}
         </div>
       </aside>
 
@@ -285,6 +348,11 @@ export default function LeftSidebar() {
         <div className="search-backdrop" onClick={handleSearchClose}></div>
       )}
 
+
+      {showSwitchAccount && (
+        <SwitchAccountModal onClose={() => setShowSwitchAccount(false)} />
+      )
+      }
       <CreatePost open={open} setOpen={setOpen} />
     </>
   );

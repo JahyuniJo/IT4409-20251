@@ -9,6 +9,8 @@ import Signup from './components/Signup'
 import Reels from './components/Reels'
 import Explore from './components/Explore'
 import ProtectedRoutes from './components/ProtectedRoutes'
+import ForgotPassword from './components/ForgotPassword'
+import ResetPassword from './components/ResetPassword'
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 import { io } from "socket.io-client";
 import { useDispatch, useSelector } from 'react-redux'
@@ -64,6 +66,8 @@ const browserRouter = createBrowserRouter([
     path: '/signup',
     element: <Signup />
   },
+  { path: '/forgot-password', element: <ForgotPassword /> },
+  { path: '/reset-password-otp', element: <ResetPassword /> },
 ])
 
 function App() {

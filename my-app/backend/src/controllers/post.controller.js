@@ -312,7 +312,66 @@ export const getCommentsOfPost = async (req, res) => {
         });
     }
 }
+export const editComment = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { text } = req.body;
 
+        const comment = await Comment.findById(id);
+        if (!comment) {
+            return res.status(404).json({ success: false, message: "Comment not found" });
+        }
+
+        if (comment.author.toString() !== req.id) {
+            return res.status(403).json({ success: false, message: "Unauthorized" });
+        }
+
+        comment.text = text;
+        await comment.save();
+        await comment.populate({
+            path: "author",
+            select: "username profilePicture"
+        });
+        res.status(200).json({
+            success: true,
+            comment,
+            message: "Comment updated",
+        });
+    } catch (err) {
+        res.status(500).json({ success: false, message: "Server error" });
+    }
+};
+
+export const deleteComment = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        const comment = await Comment.findById(id);
+        if (!comment) {
+            return res.status(404).json({ success: false });
+        }
+
+        if (comment.author.toString() !== req.id) {
+            return res.status(403).json({ success: false });
+        }
+
+        // xóa comment con
+        await Comment.deleteMany({ parentId: id });
+
+        // xóa chính nó
+        await Comment.findByIdAndDelete(id);
+
+        // pull khỏi post
+        await Post.updateOne(
+            { _id: comment.post },
+            { $pull: { comments: id } }
+        );
+
+        res.status(200).json({ success: true, commentId: id });
+    } catch (err) {
+        res.status(500).json({ success: false });
+    }
+};
 export const deletePost = async (req, res) => {
     try {
         const postId = req.params.id;
