@@ -13,7 +13,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from './ui/dialog';
 import axios from 'axios';
 import { toast } from 'sonner';
 import { setAuthUser, setUserProfile, setSelectedUser } from '@/redux/authSlice';
-import PostDetailModal from './PostDetailModal';
+import CommentDialog from './CommentDialog'
 import StoryViewer from './StoryViewer';
 
 const API_URL = import.meta.env.VITE_API_URL;
@@ -320,7 +320,8 @@ const Profile = () => {
   const [loadingSavedReels, setLoadingSavedReels] = useState(false);
   const [userStories, setUserStories] = useState(null);
   const [storyViewerOpen, setStoryViewerOpen] = useState(false);
-
+  const [isCommentOpen, setIsCommentOpen] = useState(false);
+  const [activePostId, setActivePostId] = useState(null);
   const { userProfile, user } = useSelector(store => store.auth);
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -331,6 +332,10 @@ const Profile = () => {
 
   const isLoggedInUserProfile = user?._id === userProfile?._id;
   const isFollowing = user?.following?.includes(userProfile?._id);
+  const openComment = (postId) => {
+    setActivePostId(postId);
+    setIsCommentOpen(true);
+  };
   useEffect(() => {
     if (tabFromUrl) {
       setActiveTab(tabFromUrl);
@@ -603,33 +608,9 @@ const Profile = () => {
                   key={item?._id}
                   className='relative group cursor-pointer'
                   onClick={() => {
-                    if (activeTab !== 'reels') {
-                      // Ensure author data is populated for the modal
-                      // Check if author is a populated object (has username) vs just an ObjectId string
-                      const isAuthorPopulated = item.author && typeof item.author === 'object' && item.author.username;
-
-                      let author;
-                      if (isAuthorPopulated) {
-                        author = item.author;
-                      } else if (activeTab === 'posts') {
-                        // For user's own posts, fallback to profile owner data
-                        author = {
-                          _id: userProfile?._id,
-                          username: userProfile?.username,
-                          profilePicture: userProfile?.profilePicture
-                        };
-                      } else {
-                        // For saved content from other users, keep as is (will show default avatar)
-                        author = item.author;
-                      }
-
-                      const postWithAuthor = {
-                        ...item,
-                        author
-                      };
-                      setSelectedPost(postWithAuthor);
-                    }
+                    openComment(item._id);
                   }}
+
                 >
                   {/* Thumbnail - check if it's a reel (has video) or post (has image) */}
                   {activeTab === 'reels' ? (
@@ -716,10 +697,13 @@ const Profile = () => {
 
 
       {/* Post Detail Modal */}
-      <PostDetailModal
-        post={selectedPost}
-        isOpen={!!selectedPost}
-        onClose={() => setSelectedPost(null)}
+      <CommentDialog
+        open={isCommentOpen}
+        onClose={() => {
+          setIsCommentOpen(false);
+          setActivePostId(null);
+        }}
+        postId={activePostId}
       />
 
       {/* Story Viewer */}
