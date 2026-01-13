@@ -21,15 +21,21 @@ app.use(urlencoded({ extended: true }));
 app.use(cookieParser());
 
 // CORS Configuration
-const corsOptions = {
-    // Nhập CHÍNH XÁC link Vercel của bạn (không có dấu gạch chéo / ở cuối)
-    origin: FRONTEND_URL, 
-    credentials: true, // Bắt buộc phải có để gửi/nhận cookie (token)
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization']
-};
+const allowedOrigins = [
+  process.env.FRONTEND_URL
+];
 
-app.use(cors(corsOptions));
+app.use(cors({
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
+  credentials: true
+}));
+
 
 // API Routes
 app.use("/api/v1/user", userRoute);
@@ -45,14 +51,14 @@ app.get('/api/health', (req, res) => {
     });
 });
 
-// // Serve static files in production
-// if (process.env.NODE_ENV === 'production') {
-//     app.use(express.static(path.join(__dirname, "/frontend/dist")));
+// Serve static files in production
+if (process.env.NODE_ENV === 'production') {
+    app.use(express.static(path.join(__dirname, "/frontend/dist")));
     
-//     app.get("*", (req, res) => {
-//         res.sendFile(path.resolve(__dirname, "frontend", "dist", "index.html"));
-//     });
-// }
+    app.get("*", (req, res) => {
+        res.sendFile(path.resolve(__dirname, "frontend", "dist", "index.html"));
+    });
+}
 
 // Start Server
 connectDB().then(() => {
