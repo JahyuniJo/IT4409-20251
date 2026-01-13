@@ -1,39 +1,32 @@
 import React, { useState, useRef } from 'react'
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar'
+import { Link } from 'react-router-dom'
 import { Dialog, DialogContent, DialogTrigger } from './ui/dialog'
 import { Bookmark, MessageCircle, MoreHorizontal, Send, Play, Volume2, VolumeX } from 'lucide-react'
 import { Button } from './ui/button'
 import { FaHeart, FaRegHeart } from "react-icons/fa";
-import CommentDialog from './CommentDialog'
+import PostDetailModal from './PostDetailModal'
 import { useDispatch, useSelector } from 'react-redux'
 import axios from 'axios'
 import { toast } from 'sonner'
-import { setPosts, setSelectedPost } from '@/redux/postSlice'
+import { setPosts } from '@/redux/postSlice'
 import { Badge } from './ui/badge'
 
 const API_URL = import.meta.env.VITE_API_URL;
+const DEFAULT_AVATAR = 'https://res.cloudinary.com/dva00tzke/image/upload/v1768276886/user_curjop.png?v=2';
 
 const Post = ({ post }) => {
-    const [text, setText] = useState("");
-    const [open, setOpen] = useState(false);
+    const [isDetailOpen, setIsDetailOpen] = useState(false);
     const { user } = useSelector(store => store.auth);
     const { posts } = useSelector(store => store.post);
     const [liked, setLiked] = useState(post.likes.includes(user?._id) || false);
     const [postLike, setPostLike] = useState(post.likes.length);
-    const [comment, setComment] = useState(post.comments);
     const [isPlaying, setIsPlaying] = useState(false);
     const [isMuted, setIsMuted] = useState(true);
     const videoRef = useRef(null);
     const dispatch = useDispatch();
 
-    const changeEventHandler = (e) => {
-        const inputText = e.target.value;
-        if (inputText.trim()) {
-            setText(inputText);
-        } else {
-            setText("");
-        }
-    }
+
 
     const likeOrDislikeHandler = async () => {
         try {
@@ -59,31 +52,7 @@ const Post = ({ post }) => {
         }
     }
 
-    const commentHandler = async () => {
-        try {
-            const res = await axios.post(`${API_URL}/api/v1/post/${post._id}/comment`, { text }, {
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                withCredentials: true
-            });
-            console.log(res.data);
-            if (res.data.success) {
-                const updatedCommentData = [...comment, res.data.comment];
-                setComment(updatedCommentData);
 
-                const updatedPostData = posts.map(p =>
-                    p._id === post._id ? { ...p, comments: updatedCommentData } : p
-                );
-
-                dispatch(setPosts(updatedPostData));
-                toast.success(res.data.message);
-                setText("");
-            }
-        } catch (error) {
-            console.log(error);
-        }
-    }
 
     const deletePostHandler = async () => {
         try {
@@ -114,12 +83,16 @@ const Post = ({ post }) => {
         <div className='my-8 w-full max-w-sm mx-auto'>
             <div className='flex items-center justify-between'>
                 <div className='flex items-center gap-2'>
-                    <Avatar>
-                        <AvatarImage src={post.author?.profilePicture} alt="post_image" />
-                        <AvatarFallback>CN</AvatarFallback>
-                    </Avatar>
+                    <Link to={`/profile/${post.author?._id}`}>
+                        <Avatar className="cursor-pointer hover:opacity-80 transition-opacity">
+                            <AvatarImage src={post.author?.profilePicture || DEFAULT_AVATAR} alt="post_image" />
+                            <AvatarFallback><img src={DEFAULT_AVATAR} alt="def" /></AvatarFallback>
+                        </Avatar>
+                    </Link>
                     <div className='flex items-center gap-3'>
-                        <h1>{post.author?.username}</h1>
+                        <Link to={`/profile/${post.author?._id}`} className="font-semibold hover:opacity-70 transition-opacity">
+                            {post.author?.username}
+                        </Link>
                         {user?._id === post.author._id && <Badge variant="secondary">Author</Badge>}
                     </div>
                 </div>
@@ -197,41 +170,24 @@ const Post = ({ post }) => {
                         liked ? <FaHeart onClick={likeOrDislikeHandler} size={'24'} className='cursor-pointer text-red-600' /> : <FaRegHeart onClick={likeOrDislikeHandler} size={'22px'} className='cursor-pointer hover:text-gray-600' />
                     }
 
-                    <MessageCircle onClick={() => {
-                        dispatch(setSelectedPost(post));
-                        setOpen(true);
-                    }} className='cursor-pointer hover:text-gray-600' />
+                    <MessageCircle onClick={() => setIsDetailOpen(true)} className='cursor-pointer hover:text-gray-600' />
                     <Send className='cursor-pointer hover:text-gray-600' />
                 </div>
                 <Bookmark onClick={bookmarkHandler} className='cursor-pointer hover:text-gray-600' />
             </div>
             <span className='font-medium block mb-2'>{postLike} likes</span>
             <p>
-                <span className='font-medium mr-2'>{post.author?.username}</span>
+                <Link to={`/profile/${post.author?._id}`} className='font-medium mr-2 hover:opacity-70 transition-opacity'>
+                    {post.author?.username}
+                </Link>
                 {post.caption}
             </p>
             {
-                comment.length > 0 && (
-                    <span onClick={() => {
-                        dispatch(setSelectedPost(post));
-                        setOpen(true);
-                    }} className='cursor-pointer text-sm text-gray-400'>View all {comment.length} comments</span>
+                post.comments?.length > 0 && (
+                    <span onClick={() => setIsDetailOpen(true)} className='cursor-pointer text-sm text-gray-400'>View all {post.comments.length} comments</span>
                 )
             }
-            <CommentDialog open={open} setOpen={setOpen} />
-            <div className='flex items-center justify-between'>
-                <input
-                    type="text"
-                    placeholder='Add a comment...'
-                    value={text}
-                    onChange={changeEventHandler}
-                    className='outline-none text-sm w-full'
-                />
-                {
-                    text && <span onClick={commentHandler} className='text-[#3BADF8] cursor-pointer'>Post</span>
-                }
-
-            </div>
+            <PostDetailModal post={post} isOpen={isDetailOpen} onClose={() => setIsDetailOpen(false)} />
         </div>
     )
 }

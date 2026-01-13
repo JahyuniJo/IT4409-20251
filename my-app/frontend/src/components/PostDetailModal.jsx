@@ -21,6 +21,7 @@ import {
 import { FaHeart, FaRegHeart, FaBookmark, FaRegBookmark } from 'react-icons/fa';
 
 const API_URL = import.meta.env.VITE_API_URL;
+const DEFAULT_AVATAR = 'https://res.cloudinary.com/dva00tzke/image/upload/v1768276886/user_curjop.png?v=2';
 
 const PostDetailModal = ({ post, isOpen, onClose }) => {
     const [text, setText] = useState('');
@@ -183,7 +184,7 @@ const PostDetailModal = ({ post, isOpen, onClose }) => {
                 {/* Close button at top right edge */}
                 <button
                     onClick={onClose}
-                    className="absolute -top-2 -right-12 z-10 w-8 h-8 flex items-center justify-center text-white hover:opacity-70 transition-opacity"
+                    className="absolute -top-2 -right-12 z-[110] w-8 h-8 flex items-center justify-center text-white hover:opacity-70 transition-opacity"
                     aria-label="Close"
                 >
                     <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -238,9 +239,9 @@ const PostDetailModal = ({ post, isOpen, onClose }) => {
                             <div className="flex items-center gap-3">
                                 <Link to={`/profile/${post.author?._id}`} onClick={onClose}>
                                     <Avatar className="w-8 h-8 ring-2 ring-pink-500 ring-offset-2 ring-offset-black cursor-pointer">
-                                        <AvatarImage src={post.author?.profilePicture} />
+                                        <AvatarImage src={post.author?.profilePicture || DEFAULT_AVATAR} />
                                         <AvatarFallback className="bg-gradient-to-br from-purple-500 to-pink-500 text-white text-xs font-semibold">
-                                            {post.author?.username?.[0]?.toUpperCase()}
+                                            <img src={DEFAULT_AVATAR} alt="def" className="w-full h-full object-cover" />
                                         </AvatarFallback>
                                     </Avatar>
                                 </Link>
@@ -261,36 +262,24 @@ const PostDetailModal = ({ post, isOpen, onClose }) => {
                             </button>
                         </div>
 
-                        {/* Caption & Comments */}
-                        <div className="flex-1 overflow-y-auto px-4 py-3 space-y-4 scrollbar-hide">
-                            {/* Caption */}
-                            {post.caption && (
-                                <div className="flex gap-3">
-                                    <Link to={`/profile/${post.author?._id}`} onClick={onClose} className="flex-shrink-0">
-                                        <Avatar className="w-8 h-8">
-                                            <AvatarImage src={post.author?.profilePicture} />
-                                            <AvatarFallback className="bg-gradient-to-br from-purple-500 to-pink-500 text-white text-xs">
-                                                {post.author?.username?.[0]?.toUpperCase()}
-                                            </AvatarFallback>
-                                        </Avatar>
+                        {/* Caption - Instagram Style (separate from comments) */}
+                        {post.caption && (
+                            <div className="px-4 py-3 border-b border-gray-800">
+                                <p className="text-white text-sm leading-relaxed">
+                                    <Link
+                                        to={`/profile/${post.author?._id}`}
+                                        className="font-semibold mr-1.5 hover:opacity-80"
+                                        onClick={onClose}
+                                    >
+                                        {post.author?.username}
                                     </Link>
-                                    <div className="flex-1 min-w-0">
-                                        <p className="text-white text-sm leading-relaxed">
-                                            <Link
-                                                to={`/profile/${post.author?._id}`}
-                                                className="font-semibold mr-1.5 hover:opacity-80"
-                                                onClick={onClose}
-                                            >
-                                                {post.author?.username}
-                                            </Link>
-                                            <span className="text-gray-100">{post.caption}</span>
-                                        </p>
-                                        <p className="text-gray-500 text-xs mt-1.5">{formatTimeAgo(post.createdAt)}</p>
-                                    </div>
-                                </div>
-                            )}
+                                    <span className="text-gray-100 font-normal">{post.caption}</span>
+                                </p>
+                            </div>
+                        )}
 
-                            {/* Comments */}
+                        {/* Comments */}
+                        <div className="flex-1 overflow-y-auto px-4 py-3 space-y-4 scrollbar-hide">
                             {comments.length === 0 ? (
                                 <div className="flex flex-col items-center justify-center py-12">
                                     <h3 className="text-white text-xl font-bold mb-1">No comments yet.</h3>
@@ -301,9 +290,9 @@ const PostDetailModal = ({ post, isOpen, onClose }) => {
                                     <div key={comment._id || idx} className="flex gap-3 group">
                                         <Link to={`/profile/${comment.author?._id}`} onClick={onClose} className="flex-shrink-0">
                                             <Avatar className="w-8 h-8 cursor-pointer hover:opacity-80 transition-opacity">
-                                                <AvatarImage src={comment.author?.profilePicture} />
+                                                <AvatarImage src={comment.author?.profilePicture || DEFAULT_AVATAR} />
                                                 <AvatarFallback className="bg-gray-700 text-white text-xs">
-                                                    {comment.author?.username?.[0]?.toUpperCase()}
+                                                    <img src={DEFAULT_AVATAR} alt="def" className="w-full h-full object-cover" />
                                                 </AvatarFallback>
                                             </Avatar>
                                         </Link>

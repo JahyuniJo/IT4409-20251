@@ -8,6 +8,7 @@ import axios from 'axios';
 import { toast } from 'sonner';
 
 const API_URL = import.meta.env.VITE_API_URL;
+const DEFAULT_AVATAR = 'https://res.cloudinary.com/dva00tzke/image/upload/v1768276886/user_curjop.png?v=2';
 
 const RightSidebar = () => {
   const { user, suggestedUsers } = useSelector(store => store.auth);
@@ -62,8 +63,8 @@ const RightSidebar = () => {
       <div className='flex items-center gap-3 mb-8'>
         <Link to={`/profile/${user._id}`}>
           <Avatar className='w-14 h-14 cursor-pointer hover:opacity-90 transition-opacity'>
-            <AvatarImage src={user.profilePicture || ''} />
-            <AvatarFallback>{user.username?.[0]?.toUpperCase() || 'U'}</AvatarFallback>
+            <AvatarImage src={user.profilePicture || DEFAULT_AVATAR} />
+            <AvatarFallback><img src={DEFAULT_AVATAR} alt="def" /></AvatarFallback>
           </Avatar>
         </Link>
         <div className='flex-1 min-w-0'>
@@ -99,8 +100,8 @@ const RightSidebar = () => {
               <div key={suggestedUser._id} className='flex items-center gap-3'>
                 <Link to={`/profile/${suggestedUser._id}`}>
                   <Avatar className='w-11 h-11 cursor-pointer hover:opacity-90 transition-opacity'>
-                    <AvatarImage src={suggestedUser.profilePicture || ''} />
-                    <AvatarFallback>{suggestedUser.username?.[0]?.toUpperCase() || 'U'}</AvatarFallback>
+                    <AvatarImage src={suggestedUser.profilePicture || DEFAULT_AVATAR} />
+                    <AvatarFallback><img src={DEFAULT_AVATAR} alt="def" /></AvatarFallback>
                   </Avatar>
                 </Link>
                 <div className='flex-1 min-w-0'>
@@ -117,8 +118,8 @@ const RightSidebar = () => {
                   variant="ghost"
                   onClick={() => handleFollow(suggestedUser._id)}
                   className={`font-semibold text-xs p-0 h-auto hover:bg-transparent transition-colors ${followingUsers.includes(suggestedUser._id)
-                      ? 'text-gray-700 hover:text-gray-900'
-                      : 'text-blue-500 hover:text-blue-600'
+                    ? 'text-gray-700 hover:text-gray-900'
+                    : 'text-blue-500 hover:text-blue-600'
                     }`}
                 >
                   {followingUsers.includes(suggestedUser._id) ? 'Following' : 'Follow'}

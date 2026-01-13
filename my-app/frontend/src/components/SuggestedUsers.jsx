@@ -1,7 +1,9 @@
 import React from 'react'
 import { useSelector } from 'react-redux'
-import { Link } from 'react-router-dom';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
+import { Link } from 'react-router-dom';
+
+const DEFAULT_AVATAR = 'https://res.cloudinary.com/dva00tzke/image/upload/v1768276886/user_curjop.png?v=2';
 
 const SuggestedUsers = () => {
     const { suggestedUsers } = useSelector(store => store.auth);
@@ -18,8 +20,8 @@ const SuggestedUsers = () => {
                             <div className='flex items-center gap-2'>
                                 <Link to={`/profile/${user?._id}`}>
                                     <Avatar>
-                                        <AvatarImage src={user?.profilePicture} alt="post_image" />
-                                        <AvatarFallback>CN</AvatarFallback>
+                                        <AvatarImage src={user?.profilePicture || DEFAULT_AVATAR} alt="post_image" />
+                                        <AvatarFallback><img src={DEFAULT_AVATAR} alt="def" /></AvatarFallback>
                                     </Avatar>
                                 </Link>
                                 <div>

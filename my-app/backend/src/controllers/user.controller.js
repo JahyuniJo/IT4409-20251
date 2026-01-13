@@ -463,9 +463,19 @@ export const getProfile = async (req, res) => {
         let user = await User.findById(userId)
             .populate({
                 path: 'posts',
-                options: { sort: { createdAt: -1 } }
+                options: { sort: { createdAt: -1 } },
+                populate: [
+                    { path: 'author', select: 'username profilePicture' },
+                    { path: 'comments', populate: { path: 'author', select: 'username profilePicture' } }
+                ]
             })
-            .populate('bookmarks')
+            .populate({
+                path: 'bookmarks',
+                populate: [
+                    { path: 'author', select: 'username profilePicture' },
+                    { path: 'comments', populate: { path: 'author', select: 'username profilePicture' } }
+                ]
+            })
             .populate({
                 path: 'followers',
                 select: 'username profilePicture bio'
@@ -517,7 +527,12 @@ export const editProfile = async (req, res) => {
 
         if (bio) user.bio = bio;
         if (gender) user.gender = gender;
-        if (profilePicture) user.profilePicture = cloudResponse.secure_url;
+        if (profilePicture) {
+            user.profilePicture = cloudResponse.secure_url;
+        } else if (profilePicture === '') {
+            // If expressly setting to empty (deletion), fallback to default
+            user.profilePicture = 'https://res.cloudinary.com/dva00tzke/image/upload/v1768276886/user_curjop.png?v=2';
+        }
 
         await user.save();
 

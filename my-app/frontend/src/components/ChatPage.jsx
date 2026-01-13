@@ -12,7 +12,8 @@ import { toast } from 'sonner';
 const API_URL = import.meta.env.VITE_API_URL;
 
 // Instagram-style default avatar (simple gray silhouette)
-const DEFAULT_AVATAR = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23a0a0a0" stroke="none"><circle cx="12" cy="8" r="4"/><path d="M12 14c-6 0-8 3-8 6v1h16v-1c0-3-2-6-8-6z"/></svg>';
+// Instagram-style default avatar
+const DEFAULT_AVATAR = 'https://res.cloudinary.com/dva00tzke/image/upload/v1768276886/user_curjop.png?v=2';
 
 const ChatPage = () => {
     const [textMessage, setTextMessage] = useState("");

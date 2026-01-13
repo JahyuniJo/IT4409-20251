@@ -20,6 +20,7 @@ import { toast } from "sonner";
 import "../App.css";
 
 const API_URL = import.meta.env.VITE_API_URL;
+const DEFAULT_AVATAR = 'https://res.cloudinary.com/dva00tzke/image/upload/v1768276886/user_curjop.png?v=2';
 
 export default function LeftSidebar() {
   const navigate = useNavigate();
@@ -194,7 +195,7 @@ export default function LeftSidebar() {
             onClick={handleSearchClose}
           >
             <img
-              src={user?.profilePicture || ""}
+              src={user?.profilePicture || DEFAULT_AVATAR}
               alt="avatar"
               className="sidebar-avatar"
             />
@@ -261,7 +262,7 @@ export default function LeftSidebar() {
                 onClick={handleSearchClose}
               >
                 <img
-                  src={result.profilePicture || ""}
+                  src={result.profilePicture || DEFAULT_AVATAR}
                   alt={result.username}
                   className="search-result-avatar"
                 />

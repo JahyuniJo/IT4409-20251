@@ -10,6 +10,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { addReel } from '@/redux/reelSlice';
 
 const API_URL = import.meta.env.VITE_API_URL;
+const DEFAULT_AVATAR = 'https://res.cloudinary.com/dva00tzke/image/upload/v1768276886/user_curjop.png?v=2';
 
 // Max duration for reels: 60 seconds
 const MAX_REEL_DURATION = 60;
@@ -140,7 +141,7 @@ const CreateReel = ({ open, setOpen, onSuccess }) => {
 
     return (
         <Dialog open={open} onOpenChange={handleClose}>
-            <DialogContent className="sm:max-w-[500px] p-0 gap-0 overflow-hidden bg-white rounded-xl">
+            <DialogContent className="sm:max-w-[500px] p-0 gap-0 overflow-hidden bg-white rounded-xl fixed z-[100] top-[50%] left-[50%] translate-x-[-50%] translate-y-[-50%]">
                 {/* Header */}
                 <div className="flex items-center justify-between border-b px-4 py-3 bg-white z-10">
                     {videoPreview ? (
@@ -235,8 +236,8 @@ const CreateReel = ({ open, setOpen, onSuccess }) => {
                             <div className="p-4 space-y-3">
                                 <div className="flex gap-3 items-center">
                                     <Avatar className="h-8 w-8">
-                                        <AvatarImage src={user?.profilePicture} alt="img" />
-                                        <AvatarFallback>CN</AvatarFallback>
+                                        <AvatarImage src={user?.profilePicture || DEFAULT_AVATAR} alt="img" />
+                                        <AvatarFallback><img src={DEFAULT_AVATAR} alt="def" /></AvatarFallback>
                                     </Avatar>
                                     <span className="font-semibold text-sm text-gray-900">{user?.username}</span>
                                 </div>

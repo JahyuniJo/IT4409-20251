@@ -13,6 +13,7 @@ import { Link } from 'react-router-dom';
 import CreateReel from './CreateReel';
 
 const API_URL = import.meta.env.VITE_API_URL;
+const DEFAULT_AVATAR = 'https://res.cloudinary.com/dva00tzke/image/upload/v1768276886/user_curjop.png?v=2';
 
 // Comment Overlay Component
 const ReelCommentOverlay = ({ isOpen, onClose, reel, onCommentAdded }) => {
@@ -69,7 +70,7 @@ const ReelCommentOverlay = ({ isOpen, onClose, reel, onCommentAdded }) => {
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 z-50 flex items-end justify-center md:items-center">
+        <div className="fixed inset-0 z-[100] flex items-end justify-center md:items-center">
             {/* Backdrop */}
             <div
                 className="absolute inset-0 bg-black/90 backdrop-blur-sm"
@@ -105,9 +106,9 @@ const ReelCommentOverlay = ({ isOpen, onClose, reel, onCommentAdded }) => {
                             <div key={comment._id || idx} className="flex gap-3">
                                 <Link to={`/profile/${comment.author?._id}`}>
                                     <Avatar className="w-9 h-9 flex-shrink-0 cursor-pointer hover:opacity-80 transition-opacity">
-                                        <AvatarImage src={comment.author?.profilePicture} />
+                                        <AvatarImage src={comment.author?.profilePicture || DEFAULT_AVATAR} />
                                         <AvatarFallback className="bg-gray-700 text-white text-xs">
-                                            {comment.author?.username?.[0]?.toUpperCase()}
+                                            <img src={DEFAULT_AVATAR} alt="def" className="w-full h-full object-cover" />
                                         </AvatarFallback>
                                     </Avatar>
                                 </Link>
@@ -134,9 +135,9 @@ const ReelCommentOverlay = ({ isOpen, onClose, reel, onCommentAdded }) => {
                 <form onSubmit={handleSubmitComment} className="p-4 border-t border-gray-800">
                     <div className="flex items-center gap-3">
                         <Avatar className="w-8 h-8 flex-shrink-0">
-                            <AvatarImage src={user?.profilePicture} />
+                            <AvatarImage src={user?.profilePicture || DEFAULT_AVATAR} />
                             <AvatarFallback className="bg-gray-700 text-white text-xs">
-                                {user?.username?.[0]?.toUpperCase()}
+                                <img src={DEFAULT_AVATAR} alt="def" className="w-full h-full object-cover" />
                             </AvatarFallback>
                         </Avatar>
                         <Input
@@ -325,8 +326,8 @@ const ReelCard = ({ reel, isActive, onView, onOpenComments }) => {
                 <div className="flex items-center gap-3 mb-2">
                     <Link to={`/profile/${reel.author?._id}`}>
                         <Avatar className="w-10 h-10 border-2 border-white cursor-pointer hover:opacity-80 transition-opacity">
-                            <AvatarImage src={reel.author?.profilePicture} />
-                            <AvatarFallback>{reel.author?.username?.[0]?.toUpperCase()}</AvatarFallback>
+                            <AvatarImage src={reel.author?.profilePicture || DEFAULT_AVATAR} />
+                            <AvatarFallback><img src={DEFAULT_AVATAR} alt="def" /></AvatarFallback>
                         </Avatar>
                     </Link>
                     <Link

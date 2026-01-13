@@ -11,6 +11,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { setPosts } from '@/redux/postSlice';
 
 const API_URL = import.meta.env.VITE_API_URL;
+const DEFAULT_AVATAR = 'https://res.cloudinary.com/dva00tzke/image/upload/v1768276886/user_curjop.png?v=2';
 const MAX_FILE_SIZE = 50 * 1024 * 1024; // 50MB
 
 const CreatePost = ({ open, setOpen }) => {
@@ -111,18 +112,18 @@ const CreatePost = ({ open, setOpen }) => {
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent onInteractOutside={() => handleClose()} className="sm:max-w-[500px] p-0 gap-0 overflow-hidden bg-white rounded-xl">
+      <DialogContent onInteractOutside={() => handleClose()} className="sm:max-w-[500px] p-0 gap-0 overflow-hidden bg-[#262626] border-gray-700 rounded-xl fixed z-[100] top-[50%] left-[50%] translate-x-[-50%] translate-y-[-50%]">
 
-        <div className="flex items-center justify-between border-b px-4 py-3 bg-white z-10">
+        <div className="flex items-center justify-between border-b border-gray-700 px-4 py-3 bg-[#262626] z-10">
           {preview ? (
-            <Button variant="ghost" size="icon" onClick={clearMediaHandler} className="h-8 w-8 -ml-2 text-gray-600">
+            <Button variant="ghost" size="icon" onClick={clearMediaHandler} className="h-8 w-8 -ml-2 text-gray-300 hover:text-white hover:bg-gray-700">
               <ArrowLeft className="h-5 w-5" />
             </Button>
           ) : (
             <div className="w-8"></div>
           )}
 
-          <h2 className="text-base font-semibold text-gray-900">Tạo bài viết mới</h2>
+          <h2 className="text-base font-semibold text-white">Tạo bài viết mới</h2>
 
           {preview ? (
             loading ? (
@@ -148,19 +149,19 @@ const CreatePost = ({ open, setOpen }) => {
             <div className="flex flex-col items-center justify-center h-[400px] gap-4 p-8">
               <div className="relative flex gap-4">
                 <div className="flex flex-col items-center">
-                  <div className="bg-gray-100 rounded-full p-3">
+                  <div className="bg-gray-700 rounded-full p-3">
                     <ImagePlus className="w-12 h-12 text-gray-400" strokeWidth={1} />
                   </div>
-                  <span className="text-xs text-gray-500 mt-1">Ảnh</span>
+                  <span className="text-xs text-gray-400 mt-1">Ảnh</span>
                 </div>
                 <div className="flex flex-col items-center">
-                  <div className="bg-gray-100 rounded-full p-3">
+                  <div className="bg-gray-700 rounded-full p-3">
                     <Film className="w-12 h-12 text-gray-400" strokeWidth={1} />
                   </div>
-                  <span className="text-xs text-gray-500 mt-1">Video</span>
+                  <span className="text-xs text-gray-400 mt-1">Video</span>
                 </div>
               </div>
-              <p className="text-xl font-light text-gray-600">Kéo ảnh hoặc video vào đây</p>
+              <p className="text-xl font-light text-gray-300">Kéo ảnh hoặc video vào đây</p>
 
               <input
                 ref={mediaRef}
@@ -180,7 +181,7 @@ const CreatePost = ({ open, setOpen }) => {
           ) : (
             <div className="flex flex-col max-h-[70vh] overflow-y-auto">
               <div
-                className="w-full bg-gray-100 flex items-center justify-center min-h-[300px] cursor-pointer"
+                className="w-full bg-black flex items-center justify-center min-h-[300px] cursor-pointer"
                 onClick={mediaType === 'video' ? togglePlay : undefined}
               >
                 {mediaType === 'video' ? (
@@ -213,24 +214,24 @@ const CreatePost = ({ open, setOpen }) => {
               <div className="p-4 space-y-3">
                 <div className='flex gap-3 items-center'>
                   <Avatar className="h-8 w-8">
-                    <AvatarImage src={user?.profilePicture} alt="img" />
-                    <AvatarFallback>CN</AvatarFallback>
+                    <AvatarImage src={user?.profilePicture || DEFAULT_AVATAR} alt="img" />
+                    <AvatarFallback><img src={DEFAULT_AVATAR} alt="def" /></AvatarFallback>
                   </Avatar>
-                  <span className='font-semibold text-sm text-gray-900'>{user?.username}</span>
+                  <span className='font-semibold text-sm text-white'>{user?.username}</span>
                   {mediaType === 'video' && (
-                    <span className="text-xs bg-purple-100 text-purple-600 px-2 py-0.5 rounded-full">Video</span>
+                    <span className="text-xs bg-purple-900/50 text-purple-300 px-2 py-0.5 rounded-full">Video</span>
                   )}
                 </div>
 
                 <Textarea
                   value={caption}
                   onChange={(e) => setCaption(e.target.value)}
-                  className="min-h-[100px] focus-visible:ring-0 border-none resize-none p-0 text-base placeholder:text-gray-400"
-                  placeholder="Caption ..."
+                  className="min-h-[100px] focus-visible:ring-0 border-none resize-none p-0 text-base placeholder:text-gray-500 bg-transparent text-white"
+                  placeholder="Viết caption..."
                 />
               </div>
 
-              <div className="px-4 pb-4 border-t pt-3 mt-auto">
+              <div className="px-4 pb-4 border-t border-gray-700 pt-3 mt-auto">
                 <input
                   ref={mediaRef}
                   type='file'
@@ -241,7 +242,7 @@ const CreatePost = ({ open, setOpen }) => {
                 <Button
                   variant="outline"
                   onClick={() => mediaRef.current.click()}
-                  className='w-full text-xs text-gray-500 border-gray-200'
+                  className='w-full text-xs text-gray-300 border-gray-600 bg-transparent hover:bg-gray-700 hover:text-white'
                 >
                   Thay đổi {mediaType === 'video' ? 'video' : 'ảnh'}
                 </Button>

@@ -14,8 +14,10 @@ import axios from 'axios';
 import { toast } from 'sonner';
 import { setAuthUser, setUserProfile, setSelectedUser } from '@/redux/authSlice';
 import PostDetailModal from './PostDetailModal';
+import StoryViewer from './StoryViewer';
 
 const API_URL = import.meta.env.VITE_API_URL;
+const DEFAULT_AVATAR = 'https://res.cloudinary.com/dva00tzke/image/upload/v1768276886/user_curjop.png?v=2';
 
 // Edit Profile Modal Component (Dark Theme)
 const EditProfileModal = ({ isOpen, onClose, user, onSuccess }) => {
@@ -86,7 +88,7 @@ const EditProfileModal = ({ isOpen, onClose, user, onSuccess }) => {
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[450px] bg-gray-900 border-gray-800 text-white p-0 gap-0 fixed z-[100]" style={{ backdropFilter: 'blur(8px)' }}>
+      <DialogContent className="sm:max-w-[450px] bg-gray-900 border-gray-800 text-white p-0 gap-0 fixed z-[100] top-[50%] left-[50%] translate-x-[-50%] translate-y-[-50%]" style={{ backdropFilter: 'blur(8px)' }}>
         <DialogHeader className="border-b border-gray-800 p-4">
           <div className="flex items-center justify-between">
             <DialogTitle className="text-white text-lg font-semibold">Chỉnh sửa trang cá nhân</DialogTitle>
@@ -102,11 +104,11 @@ const EditProfileModal = ({ isOpen, onClose, user, onSuccess }) => {
             <div className="relative group cursor-pointer" onClick={() => imageRef.current.click()}>
               <Avatar className="h-24 w-24 border-2 border-gray-700 group-hover:opacity-80 transition-opacity">
                 <AvatarImage
-                  src={input.profilePhoto instanceof File ? URL.createObjectURL(input.profilePhoto) : input.profilePhoto}
+                  src={input.profilePhoto instanceof File ? URL.createObjectURL(input.profilePhoto) : (input.profilePhoto || DEFAULT_AVATAR)}
                   className="object-cover"
                 />
                 <AvatarFallback className="text-2xl bg-gray-800 text-white">
-                  {user?.username?.[0]?.toUpperCase()}
+                  <img src={DEFAULT_AVATAR} alt="default" className="w-full h-full object-cover" />
                 </AvatarFallback>
               </Avatar>
               <div className="absolute bottom-0 right-0 bg-blue-500 p-1.5 rounded-full text-white shadow-lg hover:bg-blue-600 transition-colors">
@@ -211,7 +213,7 @@ const FollowListModal = ({ isOpen, onClose, title, users, currentUserId }) => {
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[425px] bg-gray-900 border-gray-800 text-white fixed z-[100]">
+      <DialogContent className="sm:max-w-[425px] bg-gray-900 border-gray-800 text-white fixed z-[100] top-[50%] left-[50%] translate-x-[-50%] translate-y-[-50%]">
         <DialogHeader className="border-b border-gray-800 pb-4">
           <div className="flex items-center justify-between">
             <DialogTitle className="text-white text-lg font-semibold">{title}</DialogTitle>
@@ -235,9 +237,9 @@ const FollowListModal = ({ isOpen, onClose, title, users, currentUserId }) => {
                       onClick={() => handleUserClick(followUser._id)}
                     >
                       <Avatar className="h-11 w-11 border border-gray-700">
-                        <AvatarImage src={followUser.profilePicture || ''} />
+                        <AvatarImage src={followUser.profilePicture || DEFAULT_AVATAR} />
                         <AvatarFallback className="bg-gray-700 text-white">
-                          {followUser.username?.[0]?.toUpperCase() || 'U'}
+                          <img src={DEFAULT_AVATAR} alt="default" className="w-full h-full object-cover" />
                         </AvatarFallback>
                       </Avatar>
                       <div className="flex-1 min-w-0">
@@ -286,6 +288,8 @@ const Profile = () => {
   const [selectedPost, setSelectedPost] = useState(null);
   const [savedReels, setSavedReels] = useState([]);
   const [loadingSavedReels, setLoadingSavedReels] = useState(false);
+  const [userStories, setUserStories] = useState(null);
+  const [storyViewerOpen, setStoryViewerOpen] = useState(false);
 
   const { userProfile, user } = useSelector(store => store.auth);
   const dispatch = useDispatch();
@@ -303,6 +307,34 @@ const Profile = () => {
       fetchSavedReels();
     }
   }, [activeTab, userProfile?._id, isLoggedInUserProfile]);
+
+  // Fetch user stories
+  useEffect(() => {
+    if (userProfile?._id) {
+      const fetchStories = async () => {
+        try {
+          const res = await axios.get(`${API_URL}/api/v1/story/user/${userProfile._id}`, { withCredentials: true });
+          if (res.data.success && res.data.stories?.length > 0) {
+            const stories = res.data.stories;
+            const hasUnseen = stories.some(s => !s.seen);
+            setUserStories({
+              userId: userProfile._id,
+              username: userProfile.username,
+              avatar: userProfile.profilePicture,
+              stories: stories,
+              hasUnseenStories: hasUnseen
+            });
+          } else {
+            setUserStories(null);
+          }
+        } catch (error) {
+          console.log(error);
+          setUserStories(null);
+        }
+      };
+      fetchStories();
+    }
+  }, [userProfile?._id]);
 
   const fetchUserReels = async () => {
     try {
@@ -392,12 +424,19 @@ const Profile = () => {
         <div className='grid grid-cols-2 gap-8'>
           {/* Avatar Section */}
           <section className='flex items-center justify-center'>
-            <Avatar className='h-40 w-40 border-4 border-gray-800'>
-              <AvatarImage src={userProfile?.profilePicture} alt="profilephoto" />
-              <AvatarFallback className="bg-gray-800 text-white text-4xl">
-                {userProfile?.username?.[0]?.toUpperCase() || 'CN'}
-              </AvatarFallback>
-            </Avatar>
+            <div
+              className={`relative rounded-full p-[3px] ${userStories ? 'bg-gradient-to-tr from-yellow-400 via-red-500 to-purple-500 cursor-pointer' : ''}`}
+              onClick={() => userStories && setStoryViewerOpen(true)}
+            >
+              <div className="bg-[#0F1115] rounded-full p-[3px]">
+                <Avatar className='h-36 w-36 border-none'>
+                  <AvatarImage src={userProfile?.profilePicture || DEFAULT_AVATAR} alt="profilephoto" />
+                  <AvatarFallback className="bg-gray-800 text-white text-4xl">
+                    <img src={DEFAULT_AVATAR} alt="default" className="w-full h-full object-cover" />
+                  </AvatarFallback>
+                </Avatar>
+              </div>
+            </div>
           </section>
 
           {/* Profile Info Section */}
@@ -522,7 +561,34 @@ const Profile = () => {
                 <div
                   key={item?._id}
                   className='relative group cursor-pointer'
-                  onClick={() => activeTab !== 'reels' && setSelectedPost(item)}
+                  onClick={() => {
+                    if (activeTab !== 'reels') {
+                      // Ensure author data is populated for the modal
+                      // Check if author is a populated object (has username) vs just an ObjectId string
+                      const isAuthorPopulated = item.author && typeof item.author === 'object' && item.author.username;
+
+                      let author;
+                      if (isAuthorPopulated) {
+                        author = item.author;
+                      } else if (activeTab === 'posts') {
+                        // For user's own posts, fallback to profile owner data
+                        author = {
+                          _id: userProfile?._id,
+                          username: userProfile?.username,
+                          profilePicture: userProfile?.profilePicture
+                        };
+                      } else {
+                        // For saved content from other users, keep as is (will show default avatar)
+                        author = item.author;
+                      }
+
+                      const postWithAuthor = {
+                        ...item,
+                        author
+                      };
+                      setSelectedPost(postWithAuthor);
+                    }
+                  }}
                 >
                   {/* Thumbnail - check if it's a reel (has video) or post (has image) */}
                   {activeTab === 'reels' ? (
@@ -608,6 +674,16 @@ const Profile = () => {
         isOpen={!!selectedPost}
         onClose={() => setSelectedPost(null)}
       />
+
+      {/* Story Viewer */}
+      {userStories && (
+        <StoryViewer
+          isOpen={storyViewerOpen}
+          onClose={() => setStoryViewerOpen(false)}
+          initialUserIndex={0}
+          storyGroups={[userStories]}
+        />
+      )}
     </div>
   );
 };
