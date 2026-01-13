@@ -1,1 +1,57 @@
-"T�i l� Ho�ng Di?u" 
+TÀI LIỆU MÔ TẢ DỰ ÁN
+Dự án: Xây dựng Website Mạng Xã Hội X
+1. Giới thiệu dự án
+
+Trong thời đại công nghệ số và cuộc cách mạng công nghiệp 4.0, mạng xã hội đóng vai trò quan trọng trong việc kết nối con người, chia sẻ thông tin và xây dựng cộng đồng. Nhu cầu sử dụng các nền tảng mạng xã hội tập trung vào nội dung hình ảnh, video và tương tác thời gian thực ngày càng tăng cao, đặc biệt đối với giới trẻ và sinh viên.
+
+Xuất phát từ nhu cầu học tập và nghiên cứu trong lĩnh vực phát triển web, dự án Mạng xã hội X được thực hiện nhằm mô phỏng một nền tảng mạng xã hội hiện đại, nơi người dùng có thể chia sẻ nội dung, kết nối và tương tác với nhau một cách thuận tiện và an toàn.
+
+2. Mục tiêu dự án
+
+Xây dựng website mạng xã hội X với giao diện hiện đại, trực quan và tương thích trên nhiều thiết bị (desktop, tablet, mobile).
+
+Tạo môi trường chia sẻ nội dung và kết nối người dùng nhanh chóng, đảm bảo trải nghiệm sử dụng tốt, hệ thống ổn định và bảo mật thông tin cá nhân.
+
+3. Phạm vi dự án
+
+Dự án tập trung phát triển các chức năng cốt lõi của một mạng xã hội hiện đại, đáp ứng nhu cầu cơ bản của người dùng trong thời gian thực hiện đề tài. Các tính năng nâng cao như gọi thoại/video, nhóm chat, gợi ý theo dõi hoặc đề xuất nội dung thông minh sẽ được nghiên cứu và phát triển trong các giai đoạn tiếp theo.
+
+4. Các chức năng chính
+
+Quản lý người dùng: đăng ký, đăng nhập, đăng xuất, cập nhật thông tin cá nhân, thay đổi mật khẩu.
+
+Quản lý bài viết: tạo, chỉnh sửa, xóa và hiển thị bài viết.
+
+Chia sẻ bài viết và tương tác nội dung.
+
+Theo dõi và hủy theo dõi người dùng khác.
+
+Bảng tin cá nhân hóa theo danh sách theo dõi.
+
+Đăng tải và xem video ngắn (Reel).
+
+Nhắn tin trực tiếp giữa các người dùng.
+
+Tìm kiếm người dùng theo tên hoặc từ khóa.
+
+5. Công nghệ sử dụng
+
+Frontend: ReactJS – xây dựng giao diện người dùng theo mô hình component, hỗ trợ SPA.
+
+Backend: Node.js và ExpressJS – xây dựng API RESTful, xử lý logic hệ thống.
+
+Database: MongoDB – lưu trữ dữ liệu dạng document linh hoạt.
+
+Bảo mật: mã hóa mật khẩu (bcrypt), xác thực bằng JWT, kiểm soát truy cập API.
+
+Deployment: triển khai trên server hoặc nền tảng cloud, frontend và backend tách biệt.
+
+6. Phân công công việc
+
+Cả nhóm: thiết kế hệ thống, lựa chọn công nghệ, dựng codebase.
+
+Lê Huy Dũng: giao diện trang chủ, bài đăng, Reel, đăng tin và xử lý logic liên quan.
+
+Nguyễn Trung Đức: trang cá nhân, tìm kiếm, chat, tương tác, responsive, đăng nhập/đăng ký, thanh điều hướng.
+
+Hoàng Diệu: xử lý logic tìm kiếm, CSDL, xác thực và bảo mật, API, đăng bài và logic Reel.
