@@ -47,7 +47,9 @@ const userSchema = new mongoose.Schema({
     bookmarkedReels: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Reel'
-    }]
+    }],
+    resetPasswordToken: String,
+    resetPasswordExpire: Date
 }, { timestamps: true });
 
 export const User = mongoose.model('User', userSchema);
