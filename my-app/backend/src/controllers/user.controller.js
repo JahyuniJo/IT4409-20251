@@ -5,8 +5,14 @@ import jwt from "jsonwebtoken";
 import getDataUri from "../utils/datauri.js";
 import cloudinary from "../utils/cloudinary.js";
 import { Post } from "../models/post.model.js";
+<<<<<<< HEAD
 import sendEmail from "../utils/sendEmail.js";
 import crypto from 'crypto';
+=======
+import crypto from "crypto";
+import sendEmail from "../utils/sendEmail.js";
+
+>>>>>>> ea4ed2a9326ecfed096a4b2ccc21f169d17da622
 export const register = async (req, res) => {
     try {
         const { username, email, password } = req.body;
@@ -464,3 +470,115 @@ export const searchUsers = async (req, res) => {
         });
     }
 }
+
+export const forgotPassword = async (req, res) => {
+    try {
+        const user = await User.findOne({ email: req.body.email });
+
+        if (!user) {
+            return res.status(404).json({
+                message: "User not found",
+                success: false,
+            });
+        }
+
+        // Generate token
+        const resetToken = crypto.randomBytes(20).toString("hex");
+
+        // Hash and set to resetPasswordToken
+        user.resetPasswordToken = crypto
+            .createHash("sha256")
+            .update(resetToken)
+            .digest("hex");
+
+        // Set token expire time
+        user.resetPasswordExpire = Date.now() + 15 * 60 * 1000;
+
+        await user.save({ validateBeforeSave: false });
+
+        // Create reset url
+        // const resetUrl = `${req.protocol}://${req.get("host")}/api/v1/user/password/reset/${resetToken}`;
+        // Since we are separating frontend and backend, we might want to send the frontend URL
+        const resetUrl = `${process.env.CLIENT_URL}/reset-password/${resetToken}`;
+
+        const message = `Your password reset token is :- \n\n ${resetUrl} \n\nIf you have not requested this email then, please ignore it.`;
+
+        // Log the link for debugging since I can't access user's email
+        console.log("Reset Password Link:", resetUrl);
+
+        try {
+            await sendEmail({
+                email: user.email,
+                subject: `Password Recovery`,
+                message,
+            });
+
+            res.status(200).json({
+                success: true,
+                message: `Email sent to ${user.email} successfully`,
+            });
+        } catch (error) {
+            user.resetPasswordToken = undefined;
+            user.resetPasswordExpire = undefined;
+
+            await user.save({ validateBeforeSave: false });
+
+            return res.status(500).json({
+                message: error.message,
+                success: false,
+            });
+        }
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({
+            message: "Internal server error",
+            success: false,
+        });
+    }
+};
+
+export const resetPassword = async (req, res) => {
+    try {
+        const resetPasswordToken = crypto
+            .createHash("sha256")
+            .update(req.params.token)
+            .digest("hex");
+
+        const user = await User.findOne({
+            resetPasswordToken,
+            resetPasswordExpire: { $gt: Date.now() },
+        });
+
+        if (!user) {
+            return res.status(400).json({
+                message: "Reset Password Token is invalid or has been expired",
+                success: false,
+            });
+        }
+
+        if (req.body.password !== req.body.confirmPassword) {
+            return res.status(400).json({
+                message: "Password does not match",
+                success: false,
+            });
+        }
+
+        const hashedPassword = await bcrypt.hash(req.body.password, 10);
+        user.password = hashedPassword;
+        user.resetPasswordToken = undefined;
+        user.resetPasswordExpire = undefined;
+
+        await user.save();
+
+        res.status(200).json({
+            success: true,
+            message: "Password reset successfully",
+        });
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({
+            message: "Internal server error",
+            success: false,
+        });
+    }
+};

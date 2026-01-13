@@ -7,9 +7,15 @@ import {
     login,
     logout,
     register,
+<<<<<<< HEAD
     forgotPassword,
     resetPassword,
     searchUsers
+=======
+    searchUsers,
+    forgotPassword,
+    resetPassword
+>>>>>>> ea4ed2a9326ecfed096a4b2ccc21f169d17da622
 } from "../controllers/user.controller.js";
 import isAuthenticated from "../middlewares/isAuthenticated.js";
 import upload from "../middlewares/multer.js";
@@ -22,7 +28,12 @@ router.route('/logout').get(logout);
 
 router.route('/suggested').get(isAuthenticated, getSuggestedUsers);
 router.route('/followorunfollow/:id').post(isAuthenticated, followOrUnfollow);
+<<<<<<< HEAD
 router.route('/search').get(isAuthenticated, searchUsers);
+=======
+router.route('/forgot-password').post(forgotPassword);
+router.route('/reset-password/:token').post(resetPassword);
+>>>>>>> ea4ed2a9326ecfed096a4b2ccc21f169d17da622
 
 router.route('/:id/profile').get(isAuthenticated, getProfile);
 router.route('/profile/edit').post(isAuthenticated, upload.single('profilePhoto'), editProfile);

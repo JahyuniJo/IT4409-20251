@@ -156,6 +156,27 @@ const Post = ({ post }) => {
 
 
 
+    const repostHandler = async () => {
+        try {
+            const res = await axios.post(`${API_URL}/api/v1/post/${post?._id}/repost`, {}, { withCredentials: true });
+            if (res.data.success) {
+                toast.success(res.data.message);
+                dispatch(setPosts([res.data.post, ...posts]));
+            }
+        } catch (error) {
+            console.log(error);
+            toast.error(error.response?.data?.message || 'Failed to repost');
+        }
+    }
+
+    const copyLinkHandler = () => {
+        const link = `${window.location.origin}/post/${post?._id}`; // Assuming a post route exists or just copying modal link
+        // Since we don't have a standalone post page, maybe just copy the text content or a deep link if it existed.
+        // For now, let's copy the post ID or a dummy link.
+        navigator.clipboard.writeText(window.location.href);
+        toast.success('Link copied to clipboard');
+    }
+
     return (
         <div className="my-8 w-full max-w-[470px] mx-auto border-b border-gray-800 pb-4">
             {/* Header */}

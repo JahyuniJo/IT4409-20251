@@ -132,15 +132,7 @@ const RightSidebar = () => {
 
       {/* Footer Links */}
       <div className='mt-8 text-xs text-gray-400 space-y-2'>
-        <div className='flex flex-wrap gap-2'>
-          <a href="#" className='hover:underline'>About</a>
-          <a href="#" className='hover:underline'>Help</a>
-          <a href="#" className='hover:underline'>Press</a>
-          <a href="#" className='hover:underline'>API</a>
-          <a href="#" className='hover:underline'>Jobs</a>
-          <a href="#" className='hover:underline'>Privacy</a>
-          <a href="#" className='hover:underline'>Terms</a>
-        </div>
+
         <p> IT4490 INSTAGRAM CLONE</p>
       </div>
     </div>

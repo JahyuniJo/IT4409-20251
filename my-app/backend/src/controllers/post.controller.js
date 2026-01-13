@@ -74,6 +74,50 @@ export const addNewPost = async (req, res) => {
     }
 }
 
+export const repost = async (req, res) => {
+    try {
+        const originalPostId = req.params.id;
+        const authorId = req.id;
+
+        const originalPost = await Post.findById(originalPostId);
+        if (!originalPost) {
+            return res.status(404).json({
+                message: 'Original post not found',
+                success: false
+            });
+        }
+
+        const newPost = await Post.create({
+            caption: originalPost.caption,
+            image: originalPost.image,
+            mediaType: originalPost.mediaType,
+            author: authorId,
+            originalPost: originalPostId
+        });
+
+        const user = await User.findById(authorId);
+        if (user) {
+            user.posts.push(newPost._id);
+            await user.save();
+        }
+
+        await newPost.populate({ path: 'author', select: '-password' });
+
+        return res.status(201).json({
+            message: 'Reposted successfully',
+            post: newPost,
+            success: true
+        });
+
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({
+            message: 'Failed to repost',
+            success: false
+        });
+    }
+}
+
 export const getAllPost = async (req, res) => {
     try {
         const posts = await Post.find()
@@ -287,8 +331,21 @@ export const getCommentsOfPost = async (req, res) => {
     try {
         const postId = req.params.id;
 
-        const comments = await Comment.find({ post: postId })
+        const comments = await Comment.find({ post: postId, parentComment: null })
             .populate('author', 'username profilePicture')
+            .populate({
+                path: 'replies',
+                populate: [
+                    {
+                        path: 'author',
+                        select: 'username profilePicture'
+                    },
+                    {
+                        path: 'replyToUser',
+                        select: 'username'
+                    }
+                ]
+            })
             .sort({ createdAt: -1 });
 
         if (!comments || comments.length === 0) {
