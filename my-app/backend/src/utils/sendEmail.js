@@ -13,7 +13,7 @@ const sendEmail = async ({ to, otp }) => {
   await axios.post(
     "https://api.brevo.com/v3/smtp/email",
     {
-      sender: { name: "DH Story", email: "no-reply@dhstory.com" },
+      sender: { name: process.env.BREVO_FROM_NAME, email: process.env.BREVO_EMAIL },
       to: [{ email: to }],
       subject: "Mã OTP đặt lại mật khẩu",
       htmlContent: html
